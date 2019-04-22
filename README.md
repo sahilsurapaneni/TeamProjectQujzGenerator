@@ -1,1 +1,1 @@
-# TeamProjectQujzGenerator
+# TeamProjectQuizGenerator
