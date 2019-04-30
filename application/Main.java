@@ -429,8 +429,10 @@ public class Main extends Application {
 					int i = 0;
 					int fontSize = 10;
 					public void handle(ActionEvent t) {
-						menuButton.setText(menuButton.getText() + " | " + listCheckMenu.get(i).getText());
-						i++;
+						if(listCheckMenu.get(i).isSelected()) {
+							menuButton.setText(menuButton.getText() + " " + listCheckMenu.get(i).getText());
+							i++;
+						}
 					}
 				}
 			);
