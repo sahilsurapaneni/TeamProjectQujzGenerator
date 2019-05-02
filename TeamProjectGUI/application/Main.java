@@ -289,6 +289,7 @@ public class Main extends Application {
 		submitButton.setOnMouseExited(e->submitButton.setStyle(init));
 		submitButton.setOnAction(
 				new EventHandler<ActionEvent>() {
+					Boolean selected = false;
 					public void handle(ActionEvent t) {
 						String topicText = topicBox.getText();
 						topicBox.setText("");
@@ -301,7 +302,6 @@ public class Main extends Application {
 							if(arrText.get(i).getText().length()>0) {
 								choices.add(new Choice(false,arrText.get(i).getText()));
 							}							
-							System.out.println(arrText.get(i).getText());
 							arrText.get(i).setText("");
 						}
 						if(topicText.length()<=0 || questionText.length()<=0 || choices.size() == 0) {
@@ -318,11 +318,27 @@ public class Main extends Application {
 						}
 						else {
 							try {
+								
 								for(int i = 0; i<arrRadio.size();i++) {
 									if(arrRadio.get(i).isSelected()) {
 										choices.get(i).setIsCorrect(true);
+										System.out.println(choices.get(i).choiceText);
+										selected = true;
 									}
 									arrRadio.get(i).setSelected(false);
+								}
+								
+								if(!selected) {
+									Alert alert = new Alert(Alert.AlertType.INFORMATION);
+									alert.setTitle("ERROR FOUND");
+									alert.setHeaderText(null);
+									alert.setContentText("No Choice Made | Question Not Added");
+									alert.showAndWait();
+									topicBox.setText("");
+									questionBox.setText("");
+									imageBox.setText("");
+									choices.clear();
+									stage.setScene(addQScene);
 								}
 							} catch(IndexOutOfBoundsException e) {
 								Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -332,18 +348,20 @@ public class Main extends Application {
 								alert.showAndWait();
 								stage.setScene(primaryScene);
 							}
-							quiz.addQuestion(topicText, questionText, choices, imageText);
-							stage.setScene(primaryScene);
-							stage.show();
-							System.out.println("Pressed");
+							if(selected) {
+								quiz.addQuestion(topicText, questionText, choices, imageText);
+								stage.setScene(primaryScene);
+								stage.show();
+								System.out.println("Pressed");
+							}
 						}
 					}
 				}
 		);
+		
 		HBox submit = new HBox();
 		submit.getChildren().setAll(submitButton);
 		submit.setAlignment(Pos.BASELINE_CENTER);
-			
 		
 		design.getChildren().setAll(topLine,topicLine,questionLine,imageLine,choiceLine,submit);
 		return new Scene(design);
@@ -599,7 +617,7 @@ public class Main extends Application {
 							stage.setScene(quizStartScene);
 						}
 						else {
-							quizLoop();
+							quizLoop(0);
 						}
 
 							
@@ -615,7 +633,7 @@ public class Main extends Application {
 		
 	}		
 	
-	private void quizLoop() {
+	private void quizLoop(int currentQuestion) {
 		List<ToggleButton> toggleGroup = new ArrayList<ToggleButton>();
 		List<String> styles = new ArrayList<String>();
 		Label questionNumber = new Label();
@@ -847,17 +865,27 @@ public class Main extends Application {
 		nextButton.setOnMouseEntered(e->nextButton.setStyle(hoverStyleN));
 		nextButton.setOnMouseExited(e->nextButton.setStyle(initStyleN));
 		nextButton.setOnAction(e -> {
-					if(currQuestion < numQuestions-1) {
-						if(selectedChoice.equals(quizQuestions.get(currQuestion).correctChoice())){
-							numCorrect++;
-						}
-						currQuestion++;
-						quizLoop();
-					}
-					else {
+					if(currQuestion >= numQuestions) {
 						resultsScene = createResultsScene();
 						stage.setScene(resultsScene);
 						stage.show();
+					}
+					else{
+						System.out.println(selectedChoice);
+						System.out.println(quizQuestions.get(currQuestion).correctChoice() + "\n");
+						if(selectedChoice.trim().equals(quizQuestions.get(currQuestion).correctChoice().trim())){
+							numCorrect++;
+						}
+						if(currQuestion == numQuestions -1) {
+							quizLoop(currQuestion);
+							resultsScene = createResultsScene();
+							stage.setScene(resultsScene);
+							stage.show();
+						}
+						else {
+							currQuestion++;
+							quizLoop(currQuestion);
+						}
 					}
 				}
 		);
