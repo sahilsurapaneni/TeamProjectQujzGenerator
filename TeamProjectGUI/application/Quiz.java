@@ -18,6 +18,7 @@ public class Quiz {
 	private int numCorrect;
 	private int numIncorrect;
 
+
 	/**
 	 * No-argument constructor
 	 */
@@ -89,6 +90,10 @@ public class Quiz {
 		Question q = new Question(question, choices, image); // new question with parameters
 		t.addQuestion(q); // add question to hashtable
 	}
+	
+	public Topic getTopic(String topic) {
+		return questions.get(topic);
+	}
 
 	/**
 	 * Start a quiz with a specified amount of questions
@@ -99,26 +104,34 @@ public class Quiz {
 	 */
 	public List<Question> startQuiz(List<Topic> topics, int numQuestions) {
 		ArrayList<Question> allQuestions = new ArrayList<Question>(); // to hold all questions
-		ArrayList<Question> questions = new ArrayList<Question>(); // to hold quiz questions
+		ArrayList<Question> question = new ArrayList<Question>(); // to hold quiz questions
 		for (Topic t : topics) { // iterate through all topics
 			for (Question q : t.getQuestionList()) { // iterate through questions in each topic
 				allQuestions.add(q); // add every question
 			}
 		}
-		Random randGen = new Random(allQuestions.size()); // used to pull a random question from all
+		
+		System.out.println(allQuestions.size());
+		// used to pull a random question from all
 															// questions
 		// add as many questions as desired to return list
 		
 		int i = 0;
 		while(i<numQuestions) {
-			int randomInt = randGen.nextInt();
-			if(questions.contains(allQuestions.get(randomInt)));
+			int randGen = (int)(Math.random()*allQuestions.size());
+			System.out.println(randGen);
+			
+			
+			if(question.contains(allQuestions.get(randGen)));
 			else {
-				questions.add(allQuestions.get(randGen.nextInt()));
+				question.add(allQuestions.get(randGen));
 				i++;
 			}
+			
+
+			
 		}
-		return questions;
+		return question;
 	}
 
 	public boolean checkCorrect(String question,String choice) {
