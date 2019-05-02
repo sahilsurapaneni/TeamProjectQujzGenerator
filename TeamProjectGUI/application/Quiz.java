@@ -133,25 +133,6 @@ public class Quiz {
 		}
 		return question;
 	}
-
-	public boolean checkCorrect(String question,String choice) {
-		Question checkQ = getQuestion(question);
-		List<Choice> choices = checkQ.getChoices();
-		Choice checkC;
-		for(int i = 0; i<choices.size();i++) {
-			if(choices.get(i).getChoiceText().equals(choice)) {
-				if(choices.get(i).getIsCorrect()) {
-					numCorrect++;
-					return true;
-				}
-				else {
-					numIncorrect ++;
-					return false;
-				}
-			}
-		}
-		return false;
-	}
 	
 	private Question getQuestion(String question) {
 		List<Question> qList = questions.getQuestionList();

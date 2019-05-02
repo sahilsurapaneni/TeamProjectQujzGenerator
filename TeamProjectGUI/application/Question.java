@@ -22,6 +22,14 @@ public class Question {
 		return choiceArray;
 	}
 	
+	public String correctChoice() {
+		for(int i = 0; i<choiceArray.size(); i++) {
+			if(choiceArray.get(i).getIsCorrect()) {
+				return choiceArray.get(i).getChoiceText();
+			}
+		}
+		return null;
+	}
 	public String getImageString() {
 		return image;
 	}

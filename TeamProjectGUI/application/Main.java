@@ -21,36 +21,35 @@ public class Main extends Application {
 	private Scene addQScene;
 	private Scene addJSONScene;
 	private Scene quizStartScene;
-	//private Scene mainQuizScene;
 	private Scene resultsScene;
+	private Scene saveJSONScene;
 	private Label label;
-	
 	
 	private int currQuestion = 0;
 	private ArrayList<String> choices= new ArrayList<String>();
-	
-	
 	
 	private Stage stage;
 	
 	private Quiz quiz;
 	private List<Question> quizQuestions;
+	String selectedChoice;
+	int numCorrect;
 	
-	private int numQuestions = 0;
-	private int numCorrect = 0;
+	int numQuestions = 0;
 	
 	public void start(Stage primaryStage) {
 		stage = primaryStage;
 		
 		quiz = new Quiz();	
 		quizQuestions = new ArrayList<Question>();
+		selectedChoice = "";
+		numCorrect = 0;
 		
 		primaryScene = createPrimaryScene();
 		addQScene = createAddQScene();
 		addJSONScene = createAddJSONScene();
 		quizStartScene = createQuizStartScene();
-		//mainQuizScene = createMainQuizScene();
-		resultsScene = createResultsScene();
+		saveJSONScene = createSaveJSONScene();
 				
 		stage.setScene(primaryScene);
 		stage.show();
@@ -156,7 +155,6 @@ public class Main extends Application {
 		
 		
 	}
-	
 	
 	@SuppressWarnings("unused")
 	private Scene createAddQScene() {
@@ -351,7 +349,6 @@ public class Main extends Application {
 		return new Scene(design);
 	}
 	
-	
 	private Scene createAddJSONScene() {
 		VBox design = new VBox(10);
 		design.setStyle("-fx-background-color: cornsilk; -fx-padding: 15;");
@@ -473,7 +470,6 @@ public class Main extends Application {
 		
 	}
 	
-	
 	private Scene createQuizStartScene() {
 		VBox design = new VBox();
 		design.setStyle("-fx-background-color: cornsilk; -fx-padding: 15;");
@@ -583,9 +579,11 @@ public class Main extends Application {
 							
 						}
 						numQuestions = Integer.parseInt(sampleText.getText());
+						
 						if(numQuestions > size) {
 							numQuestions = size;
 						}
+						
 						sampleText.setText("");
 						quizQuestions = quiz.startQuiz(topics, numQuestions);
 						for(int i = 0; i<quizQuestions.size(); i++) {
@@ -616,7 +614,6 @@ public class Main extends Application {
 		return new Scene(design);
 		
 	}		
-	
 	
 	private void quizLoop() {
 		List<ToggleButton> toggleGroup = new ArrayList<ToggleButton>();
@@ -691,6 +688,7 @@ public class Main extends Application {
 		choiceOne.setOnAction(e->{
 			if(choiceOne.isSelected()) {
 				choiceOne.setStyle(hoverStyle1);
+				selectedChoice = choiceOne.getText();
 			}
 			else{
 				choiceOne.setStyle(initStyle1);
@@ -712,6 +710,7 @@ public class Main extends Application {
 		choiceTwo.setOnAction(e->{
 			if(choiceTwo.isSelected()) {
 				choiceTwo.setStyle(hoverStyle2);
+				selectedChoice = choiceTwo.getText();
 			}
 			else{
 				choiceTwo.setStyle(initStyle2);
@@ -732,6 +731,7 @@ public class Main extends Application {
 		choiceThree.setOnAction(e->{
 			if(choiceThree.isSelected()) {
 				choiceThree.setStyle(hoverStyle3);
+				selectedChoice = choiceThree.getText();
 			}
 			else{
 				choiceThree.setStyle(initStyle3);
@@ -754,6 +754,7 @@ public class Main extends Application {
 		choiceFour.setOnAction(e->{
 			if(choiceFour.isSelected()) {
 				choiceFour.setStyle(hoverStyle4);
+				selectedChoice = choiceFour.getText();
 			}
 			else{
 				choiceFour.setStyle(initStyle4);
@@ -774,6 +775,7 @@ public class Main extends Application {
 		choiceFive.setOnAction(e->{
 			if(choiceFive.isSelected()) {
 				choiceFive.setStyle(hoverStyle5);
+				selectedChoice = choiceFive.getText();
 			}
 			else{
 				choiceFive.setStyle(initStyle5);
@@ -789,14 +791,7 @@ public class Main extends Application {
 			
 			choiceOne.setSelected(false);
 			choiceOne.setStyle(initStyle1);
-		});
-		
-		
-		
-		
-		
-		
-		
+		});	
 		
 		int size = 0;
 		for(int j = 0; j<quizQuestions.get(currQuestion).getChoices().size();j++) {
@@ -804,12 +799,8 @@ public class Main extends Application {
 		}
 		for(int k = 0; k< toggleGroup.size();k++) {
 			if(toggleGroup.get(k).getText().length()<=0) {
-				
-				
 				toggleGroup.get(k).setStyle("-fx-background-color: white;-fx-border: none; -fx-color: white;");
 				toggleGroup.get(k).setDisable(true);
-				
-				
 			}
 			else {
 				size++;
@@ -857,33 +848,16 @@ public class Main extends Application {
 		nextButton.setOnMouseExited(e->nextButton.setStyle(initStyleN));
 		nextButton.setOnAction(e -> {
 					if(currQuestion < numQuestions-1) {
-						
-						
-						for(int x = 0; x<quizQuestions.get(currQuestion).getChoices().size(); x++) {
-
-								if(toggleGroup.get(x).isSelected()) {
-									
-									for(int y = 0;y<quizQuestions.get(currQuestion).getChoices().size(); y++) {
-										
-										if(toggleGroup.get(x).getText().equals(quizQuestions.get(currQuestion).getChoices().get(y).getChoiceText())) {
-											numCorrect++;	
-										}
-										
-									}
-								}
-								
-								
-							
-							
+						if(selectedChoice.equals(quizQuestions.get(currQuestion).correctChoice())){
+							numCorrect++;
 						}
 						currQuestion++;
 						quizLoop();
-						
-						
-						
 					}
 					else {
+						resultsScene = createResultsScene();
 						stage.setScene(resultsScene);
+						stage.show();
 					}
 				}
 		);
@@ -905,7 +879,17 @@ public class Main extends Application {
 			image = new Image("quizTemp.jpg");
 		}
 		else {
-			image = new Image(quizQuestions.get(currQuestion).getImageString());
+			try {
+				image = new Image(quizQuestions.get(currQuestion).getImageString());
+			}
+			catch(IllegalArgumentException e) {
+				Alert alert = new Alert(Alert.AlertType.INFORMATION);
+				alert.setTitle("ERROR FOUND");
+				alert.setHeaderText(null);
+				alert.setContentText("Invalid Image URL | Default Image Shown");
+				alert.showAndWait();
+				image = new Image("quizTemp.jpg");
+			}
 		}
 		ImageView imageView = new ImageView(image);
 		imageView.setFitHeight(200);
@@ -940,9 +924,11 @@ public class Main extends Application {
 		submitButton.setOnAction(
 				new EventHandler<ActionEvent>() {
 					public void handle(ActionEvent t) {
-						for(int i = 0; i<choices.size();i++) {
-							System.out.println(choices.get(i));
+						if(selectedChoice.equals(quizQuestions.get(currQuestion).correctChoice())){
+							numCorrect++;
 						}
+						currQuestion++;
+						resultsScene = createResultsScene();
 						stage.setScene(resultsScene);
 						stage.show();
 					}
@@ -962,7 +948,6 @@ public class Main extends Application {
 		stage.setScene(quiz);
 	}
 	
-	
 	private Scene createResultsScene() {
 		Label questionNumber = new Label();
 		questionNumber.setText("Quiz Results");
@@ -975,33 +960,65 @@ public class Main extends Application {
 		
 		
 		Label correct = new Label();
-		correct.setText("Correct: ");
+		correct.setText("Correct: " + numCorrect);
 		correct.setStyle("-fx-font: italic 17px Georgia, serif;");
 		
 		Label incorrect = new Label();
-		incorrect.setText("Incorrect: ");
+		incorrect.setText("Incorrect: " + (numQuestions-numCorrect));
 		incorrect.setStyle("-fx-font: italic 17px Georgia, serif;");
+		
+		Label percentCorrect = new Label();
+		percentCorrect.setText("% Correct: " + (int)((double)(numCorrect)/(double)(numQuestions) * 100) + "%");
+		percentCorrect.setStyle("-fx-font: italic 17px Georgia, serif;");
 		
 		VBox questionResults = new VBox();
 		questionResults.setSpacing(25);
-		questionResults.getChildren().setAll(correct,incorrect);
+		questionResults.getChildren().setAll(correct,incorrect,percentCorrect);
 		questionResults.setPadding(new Insets(0,20,40,20));
+		
+		Button addQuestionButton = new Button();
+		addQuestionButton.setText("Add Questions");
+		addQuestionButton.setMaxSize(120, 50);
+		addQuestionButton.setMinSize(120, 50);
+		String init = "-fx-background-color: palegreen; -fx-color: black; -fx-font-weight: bold;"
+				+ "-fx-background-radius: 5px; -fx-text-align: center; -fx-font-weight: bold;-fx-text-fill: black; -fx-text-decoration: none; -fx-display: inline-block; -fx-font-size: 14px;";
+		String hover = "-fx-background-color: mediumseagreen; -fx-color: black; -fx-border: 5px; -fx-border-color: #4CAF50; -fx-border-style: solid;"
+				+ "-fx-background-radius: 5px; -fx-text-align: center; -fx-text-fill: white; -fx-text-decoration: none; -fx-display: inline-block; -fx-font-size: 14px;";
+		addQuestionButton.setStyle(init);
+		addQuestionButton.setOnMouseEntered(e->addQuestionButton.setStyle(hover));
+		addQuestionButton.setOnMouseExited(e->addQuestionButton.setStyle(init));
+		addQuestionButton.setOnAction(
+				new EventHandler<ActionEvent>() {
+					public void handle(ActionEvent t) {
+						currQuestion = 0;
+						quizQuestions.clear();
+						numCorrect = 0;
+						choices.clear();
+						stage.setScene(primaryScene);
+						stage.show();
+					}
+				}
+		);		
 		
 		
 		Button returnQuizButton = new Button();
 		returnQuizButton.setText("Retake Quiz");
 		returnQuizButton.setMaxSize(120, 50);
 		returnQuizButton.setMinSize(120, 50);
-		String init = "-fx-background-color: lightblue; -fx-color: black; -fx-font-weight: bold;"
+		String init1 = "-fx-background-color: lightblue; -fx-color: black; -fx-font-weight: bold;"
 				+ "-fx-background-radius: 5px; -fx-text-align: center; -fx-font-weight: bold;-fx-text-fill: black; -fx-text-decoration: none; -fx-display: inline-block; -fx-font-size: 14px;";
-		String hover = "-fx-background-color: #058984; -fx-color: black; -fx-border: 5px; -fx-border-color: #4CAF50; -fx-border-style: solid;"
+		String hover1 = "-fx-background-color: #058984; -fx-color: black; -fx-border: 5px; -fx-border-color: #4CAF50; -fx-border-style: solid;"
 				+ "-fx-background-radius: 5px; -fx-text-align: center; -fx-text-fill: white; -fx-text-decoration: none; -fx-display: inline-block; -fx-font-size: 14px;";
-		returnQuizButton.setStyle(init);
-		returnQuizButton.setOnMouseEntered(e->returnQuizButton.setStyle(hover));
-		returnQuizButton.setOnMouseExited(e->returnQuizButton.setStyle(init));
+		returnQuizButton.setStyle(init1);
+		returnQuizButton.setOnMouseEntered(e->returnQuizButton.setStyle(hover1));
+		returnQuizButton.setOnMouseExited(e->returnQuizButton.setStyle(init1));
 		returnQuizButton.setOnAction(
 				new EventHandler<ActionEvent>() {
 					public void handle(ActionEvent t) {
+						currQuestion = 0;
+						quizQuestions.clear();
+						numCorrect = 0;
+						choices.clear();
 						stage.setScene(quizStartScene);
 						stage.show();
 					}
@@ -1012,35 +1029,121 @@ public class Main extends Application {
 		quitButton.setText("Quit");
 		quitButton.setMaxSize(120, 50);
 		quitButton.setMinSize(120, 50);
-		String init1 = "-fx-background-color: red; -fx-color: black; -fx-font-weight: bold;"
+		String init2 = "-fx-background-color: red; -fx-color: black; -fx-font-weight: bold;"
 				+ "-fx-background-radius: 5px; -fx-text-align: center;-fx-font-weight: bold; -fx-text-fill: black; -fx-text-decoration: none; -fx-display: inline-block; -fx-font-size: 14px;";
-		String hover1 = "-fx-background-color: #CA1010; -fx-color: black; -fx-border: 5px; -fx-border-color: #4CAF50; -fx-border-style: solid;"
+		String hover2 = "-fx-background-color: #CA1010; -fx-color: black; -fx-border: 5px; -fx-border-color: #4CAF50; -fx-border-style: solid;"
 				+ "-fx-background-radius: 5px; -fx-text-align: center; -fx-text-fill: white; -fx-text-decoration: none; -fx-display: inline-block; -fx-font-size: 14px;";
-		quitButton.setStyle(init1);
-		quitButton.setOnMouseEntered(e->quitButton.setStyle(hover1));
-		quitButton.setOnMouseExited(e->quitButton.setStyle(init1));
+		quitButton.setStyle(init2);
+		quitButton.setOnMouseEntered(e->quitButton.setStyle(hover2));
+		quitButton.setOnMouseExited(e->quitButton.setStyle(init2));
 		quitButton.setOnAction(
 				new EventHandler<ActionEvent>() {
 					public void handle(ActionEvent t) {
-						stage.setScene(primaryScene);
+						currQuestion = 0;
+						quizQuestions.clear();
+						numCorrect = 0;
+						choices.clear();
+						stage.setScene(saveJSONScene);
 						stage.show();
 					}
 				}
 		);
 		
+		
 		VBox design = new VBox(topLine);
 		design.setStyle("-fx-background-color: cornsilk; -fx-padding: 15;");
-	
+			
 		HBox botLine = new HBox();
-		botLine.getChildren().setAll(returnQuizButton,quitButton);
+		botLine.getChildren().setAll(addQuestionButton, returnQuizButton,quitButton);
 		botLine.setPadding(new Insets(0,20,20,20));
 		botLine.setSpacing(100);
 		
 		design.getChildren().setAll(topLine,questionResults,botLine);
 		return new Scene(design);
-		
 	}
 	
+	public Scene createSaveJSONScene() {
+		
+		Label JSONTitle = new Label();
+		JSONTitle.setText("Save Questions to JSON File");
+		JSONTitle.setStyle("-fx-font-weight: bold; -fx-font-size: 40px;");
+		
+		HBox topLine = new HBox();
+		topLine.getChildren().setAll(JSONTitle);
+		topLine.setPadding(new Insets(0,20,35,20));
+		topLine.setAlignment(Pos.CENTER);
+		
+		Label JSONFile = new Label();
+		JSONFile.setText("Enter JSONFile Name: ");
+		JSONFile.setStyle("-fx-font: italic 17px Georgia, serif;");
+		
+		TextArea JSONBox = new TextArea();
+		JSONBox.setPrefColumnCount(10);
+		JSONBox.setPrefRowCount(1);
+		JSONBox.setStyle("-fx-border: 2px; -fx-border-color: #4CAF50;-fx-border-radius: 5px;");
+		
+		HBox JSONLine = new HBox();
+		JSONLine.setSpacing(15);
+		JSONLine.setPadding(new Insets(30,50,50,50));
+		JSONLine.getChildren().setAll(JSONFile, JSONBox);
+		
+		Button saveButton = new Button();
+		saveButton.setText("Save");
+		saveButton.setMaxSize(120, 50);
+		saveButton.setMinSize(120, 50);
+		String init1 = "-fx-background-color: lightblue; -fx-color: black; -fx-font-weight: bold;"
+				+ "-fx-background-radius: 5px; -fx-text-align: center; -fx-font-weight: bold;-fx-text-fill: black; -fx-text-decoration: none; -fx-display: inline-block; -fx-font-size: 14px;";
+		String hover1 = "-fx-background-color: #058984; -fx-color: black; -fx-border: 5px; -fx-border-color: #4CAF50; -fx-border-style: solid;"
+				+ "-fx-background-radius: 5px; -fx-text-align: center; -fx-text-fill: white; -fx-text-decoration: none; -fx-display: inline-block; -fx-font-size: 14px;";
+		saveButton.setStyle(init1);
+		saveButton.setOnMouseEntered(e->saveButton.setStyle(hover1));
+		saveButton.setOnMouseExited(e->saveButton.setStyle(init1));
+		saveButton.setOnAction(
+				new EventHandler<ActionEvent>() {
+					public void handle(ActionEvent t) {
+						currQuestion = 0;
+						quizQuestions.clear();
+						numCorrect = 0;
+						choices.clear();
+						System.exit(0);
+					}
+				}
+		);
+		
+		Button quitButton = new Button();
+		quitButton.setText("Exit w/o Saving");
+		quitButton.setMaxSize(120, 50);
+		quitButton.setMinSize(120, 50);
+		String init2 = "-fx-background-color: red; -fx-color: black; -fx-font-weight: bold;"
+				+ "-fx-background-radius: 5px; -fx-text-align: center;-fx-font-weight: bold; -fx-text-fill: black; -fx-text-decoration: none; -fx-display: inline-block; -fx-font-size: 12px;";
+		String hover2 = "-fx-background-color: #CA1010; -fx-color: black; -fx-border: 5px; -fx-border-color: #4CAF50; -fx-border-style: solid;"
+				+ "-fx-background-radius: 5px; -fx-text-align: center; -fx-text-fill: white; -fx-text-decoration: none; -fx-display: inline-block; -fx-font-size: 12px;";
+		quitButton.setStyle(init2);
+		quitButton.setOnMouseEntered(e->quitButton.setStyle(hover2));
+		quitButton.setOnMouseExited(e->quitButton.setStyle(init2));
+		quitButton.setOnAction(
+				new EventHandler<ActionEvent>() {
+					public void handle(ActionEvent t) {
+						currQuestion = 0;
+						quizQuestions.clear();
+						numCorrect = 0;
+						choices.clear();
+						System.exit(0);
+					}
+				}
+		);
+		
+		HBox buttonLine = new HBox();
+		buttonLine.setSpacing(150);
+		buttonLine.getChildren().setAll(saveButton,quitButton);
+		buttonLine.setPadding(new Insets(0,20,35,20));
+		buttonLine.setAlignment(Pos.CENTER);
+		
+		VBox design = new VBox();
+		design.setStyle("-fx-background-color: cornsilk; -fx-padding: 15;");
+		design.getChildren().setAll(topLine,JSONLine,buttonLine);
+		return new Scene(design);
+	}
 	
 	public static void main(String[] args) {
 		launch(args);
