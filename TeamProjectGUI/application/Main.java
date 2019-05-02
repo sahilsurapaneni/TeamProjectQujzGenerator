@@ -25,13 +25,15 @@ public class Main extends Application {
 	private Scene resultsScene;
 	private Label label;
 	
-	private int questionNum = 1;
+	private int currQuestion = 0;
 	private ArrayList<String> choices= new ArrayList<String>();
 	
 	private Stage stage;
 	
 	private Quiz quiz;
 	private List<Question> quizQuestions;
+	
+	int numQuestions = 0;
 	
 	public void start(Stage primaryStage) {
 		stage = primaryStage;
@@ -571,231 +573,15 @@ public class Main extends Application {
 								topics.add(quiz.getTopic(listCheckMenu.get(i).getText()));
 							}
 						}
-						int numQuestions = Integer.parseInt(sampleText.getText());
-						System.out.println(numQuestions);
+						numQuestions = Integer.parseInt(sampleText.getText());
 						sampleText.setText("");
 						quizQuestions = quiz.startQuiz(topics, numQuestions);
 						for(int i = 0; i<quizQuestions.size(); i++) {
 							System.out.println(quizQuestions.get(i).getQuestionText());
 						}
-					
 						
-						Label questionNumber = new Label();
-						questionNumber.setText("Question " + questionNum);
-						questionNumber.setStyle("-fx-font-weight: bold; -fx-font-size: 40px;");
+						quizLoop();
 							
-						ToggleGroup choiceGroup = new ToggleGroup();
-						
-						ToggleButton choiceOne = new ToggleButton();
-						choiceOne.setToggleGroup(choiceGroup);
-						choiceOne.setMinSize(250, 100);
-						choiceOne.setMaxSize(250, 100);
-						choiceOne.setText("choice 1");
-						String initStyle1 = "-fx-background-color: #4CAF50;-fx-border: none; -fx-color: white; -fx-font-weight: bold;"
-								+ "-fx-text-align: left; -fx-text-decoration: none; fx-font-size: 20px; -fx-text-fill: white;-fx-background-radius: 5px;";
-						String hoverStyle1 = "-fx-background-color: #439747;-fx-border: 15px; -fx-border-color: black; -fx-border-style: solid; -fx-color: white; -fx-font-weight: bold;"
-								+ "-fx-text-align: left; -fx-text-decoration: none; fx-font-size: 20px; -fx-text-fill: white;-fx-background-radius: 5px;";
-						choiceOne.setOnAction(e->{
-							if(choiceOne.isSelected()) {
-								choiceOne.setStyle(hoverStyle1);
-							}
-							else{
-								choiceOne.setStyle(initStyle1);
-							}
-						});
-						choiceOne.setStyle(initStyle1);
-						
-						ToggleButton choiceTwo = new ToggleButton();
-						choiceTwo.setToggleGroup(choiceGroup);
-						choiceTwo.setMinSize(250, 100);
-						choiceTwo.setMaxSize(250, 100);
-						choiceTwo.setText("choice 2");
-						String initStyle2 = "-fx-background-color: #007AFF;-fx-border: none; -fx-color: white; -fx-font-weight: bold;"
-								+ "-fx-text-align: left; -fx-text-decoration: none; fx-font-size: 20px; -fx-text-fill: white; -fx-background-radius: 5px;";
-						String hoverStyle2 = "-fx-background-color: #045BBA;-fx-border: 15px; -fx-border-color: black; -fx-border-style: solid; -fx-color: white; -fx-font-weight: bold;"
-								+ "-fx-text-align: left; -fx-text-decoration: none; fx-font-size: 20px; -fx-text-fill: white;-fx-background-radius: 5px;";
-						choiceTwo.setOnAction(e->{
-							if(choiceTwo.isSelected()) {
-								choiceTwo.setStyle(hoverStyle2);
-							}
-							else{
-								choiceTwo.setStyle(initStyle2);
-							}
-						});
-						choiceTwo.setStyle(initStyle2);
-						
-						ToggleButton choiceThree = new ToggleButton();
-						choiceThree.setToggleGroup(choiceGroup);
-						choiceThree.setMinSize(250, 100);
-						choiceThree.setMaxSize(250, 100);
-						choiceThree.setText("choice 3");
-						String initStyle3 = "-fx-background-color: #FF003E;-fx-border: none; -fx-color: white; -fx-font-weight: bold;"
-								+ "-fx-text-align: left; -fx-text-decoration: none; fx-font-size: 20px; -fx-text-fill: white;-fx-background-radius: 5px;";
-						String hoverStyle3 =  "-fx-background-color: #D00335;-fx-border: 15px; -fx-border-color: black; -fx-border-style: solid; -fx-color: white; -fx-font-weight: bold;"
-								+ "-fx-text-align: left; -fx-text-decoration: none; fx-font-size: 20px; -fx-text-fill: white;-fx-background-radius: 5px;";
-						choiceThree.setOnAction(e->{
-							if(choiceThree.isSelected()) {
-								choiceThree.setStyle(hoverStyle3);
-							}
-							else{
-								choiceThree.setStyle(initStyle3);
-							}
-						});
-						choiceThree.setStyle(initStyle3);
-						
-						ToggleButton choiceFour = new ToggleButton();
-						choiceFour.setToggleGroup(choiceGroup);
-						choiceFour.setMinSize(250, 100);
-						choiceFour.setMaxSize(250, 100);
-						choiceFour.setText("choice 4");
-						String initStyle4 = "-fx-background-color: #FFAD00;-fx-border: none; -fx-color: white; -fx-font-weight: bold;"
-								+ "-fx-text-align: left; -fx-text-decoration: none; fx-font-size: 20px; -fx-text-fill: white;-fx-background-radius: 5px;";
-						String hoverStyle4 =  "-fx-background-color: #E09903;-fx-border: 15px; -fx-border-color: black; -fx-border-style: solid; -fx-color: white; -fx-font-weight: bold;"
-								+ "-fx-text-align: left; -fx-text-decoration: none; fx-font-size: 20px; -fx-text-fill: white;-fx-background-radius: 5px;";
-						choiceFour.setOnAction(e->{
-							if(choiceFour.isSelected()) {
-								choiceFour.setStyle(hoverStyle4);
-							}
-							else{
-								choiceFour.setStyle(initStyle4);
-							}
-						});
-						choiceFour.setStyle(initStyle4);
-						
-						ToggleButton choiceFive = new ToggleButton();
-						choiceFive.setToggleGroup(choiceGroup);
-						choiceFive.setMinSize(250, 100);
-						choiceFive.setMaxSize(250, 100);
-						choiceFive.setText("choice 5");
-						String initStyle5 = "-fx-background-color: #B600FF;-fx-border: none; -fx-color: white; -fx-font-weight: bold;"
-								+ "-fx-text-align: left; -fx-text-decoration: none; fx-font-size: 20px; -fx-text-fill: white;-fx-background-radius: 5px;";
-						String hoverStyle5 =  "-fx-background-color: #8705BB;-fx-border: 15px; -fx-border-color: black; -fx-border-style: solid; -fx-color: white; -fx-font-weight: bold;"
-								+ "-fx-text-align: left; -fx-text-decoration: none; fx-font-size: 20px; -fx-text-fill: white;-fx-background-radius: 5px;";
-						choiceFive.setOnAction(e->{
-							if(choiceFive.isSelected()) {
-								choiceFive.setStyle(hoverStyle5);
-							}
-							else{
-								choiceFive.setStyle(initStyle5);
-							}
-						});
-						choiceFive.setStyle(initStyle5);
-						
-						HBox topLineChoice = new HBox();
-						topLineChoice.setSpacing(7);
-						topLineChoice.setPadding(new Insets(0,20,10,20));
-						topLineChoice.setAlignment(Pos.BASELINE_CENTER);
-						topLineChoice.getChildren().setAll(choiceOne,choiceTwo,choiceThree);
-						
-						HBox bottomLineChoice = new HBox();
-						bottomLineChoice.setSpacing(7);
-						bottomLineChoice.setPadding(new Insets(0,20,30,20));
-						bottomLineChoice.setAlignment(Pos.BASELINE_CENTER);
-						bottomLineChoice.getChildren().setAll(choiceFour,choiceFive);
-								
-						Button nextButton = new Button();
-						String initStyleN = "-fx-font-weight: bold; -fx-background-color: D5D6D6;-fx-font-size: 24px;-fx-background-radius: 10px";
-						String hoverStyleN = "-fx-font-weight: bold; -fx-background-color: C5C6C6;-fx-font-size: 24px;-fx-background-radius: 10px";
-						nextButton.setText("Next");
-						nextButton.setMaxSize(225, 150);
-						nextButton.setStyle(initStyleN);
-						nextButton.setOnMouseEntered(e->nextButton.setStyle(hoverStyleN));
-						nextButton.setOnMouseExited(e->nextButton.setStyle(initStyleN));
-						nextButton.setOnAction(
-								new EventHandler<ActionEvent>() {
-									public void handle(ActionEvent t) {
-										questionNum++;
-										questionNumber.setText("Question " + questionNum);
-										if(choiceOne.isSelected()) {
-											choices.add(choiceOne.getText());
-											choiceOne.setSelected(false);
-											choiceOne.setStyle(initStyle1);
-										}
-										else if(choiceTwo.isSelected()) {
-											choices.add(choiceTwo.getText());
-											choiceTwo.setSelected(false);
-											choiceTwo.setStyle(initStyle2);
-										}
-										else if(choiceThree.isSelected()) {
-											choices.add(choiceThree.getText());
-											choiceThree.setSelected(false);
-											choiceThree.setStyle(initStyle3);
-										}
-										else if(choiceFour.isSelected()) {
-											choices.add(choiceFour.getText());
-											choiceFour.setSelected(false);
-											choiceFour.setStyle(initStyle4);
-										}
-										else if(choiceFive.isSelected()) {
-											choices.add(choiceFive.getText());
-											choiceFive.setSelected(false);
-											choiceFive.setStyle(initStyle5);
-										}
-									}
-								}
-						);
-						
-						HBox topLine = new HBox();
-						topLine.setSpacing(100);
-						topLine.setAlignment(Pos.BASELINE_RIGHT);
-						topLine.setPadding(new Insets(30,100,25,30));
-						topLine.getChildren().setAll(questionNumber,nextButton);
-						
-						Image image = new Image("quizTemp.jpg");
-						ImageView imageView = new ImageView(image);
-						imageView.setFitHeight(200);
-						imageView.setFitWidth(200);
-						
-						HBox imageBox = new HBox();
-						imageBox.setSpacing(10);
-						imageBox.setAlignment(Pos.BASELINE_CENTER);
-						imageBox.getChildren().setAll(imageView);
-						imageBox.setPadding(new Insets(0,0,25,0));
-						
-						Label questionText = new Label();
-						questionText.setText("\"Question Text\"");
-						questionText.setStyle("-fx-font-weight: bold; -fx-font-size: 20px;");
-						
-						HBox questionBox = new HBox();
-						questionBox.getChildren().setAll(questionText);
-						questionBox.setPadding(new Insets(0,20,20,20));
-						questionBox.setAlignment(Pos.BASELINE_CENTER);
-						
-						
-						Button submitButton = new Button();
-						submitButton.setText("Submit Quiz");
-						submitButton.setMaxSize(150, 100);
-						String init = "-fx-background-color: lightblue; -fx-color: black; "
-								+ "-fx-background-radius: 5px; -fx-text-align: center; -fx-text-fill: black; -fx-text-decoration: none; -fx-display: inline-block; -fx-font-size: 14px;";
-						String hover = "-fx-background-color: #058984; -fx-color: black; -fx-border: 5px; -fx-border-color: #4CAF50; -fx-border-style: solid;"
-								+ "-fx-background-radius: 5px; -fx-text-align: center; -fx-text-fill: white; -fx-text-decoration: none; -fx-display: inline-block; -fx-font-size: 14px;";
-						submitButton.setStyle(init);
-						submitButton.setOnMouseEntered(e->submitButton.setStyle(hover));
-						submitButton.setOnMouseExited(e->submitButton.setStyle(init));
-						submitButton.setOnAction(
-								new EventHandler<ActionEvent>() {
-									public void handle(ActionEvent t) {
-										for(int i = 0; i<choices.size();i++) {
-											System.out.println(choices.get(i));
-										}
-										stage.setScene(resultsScene);
-										stage.show();
-									}
-								}
-						);
-						
-						HBox submit = new HBox();
-						submit.getChildren().setAll(submitButton);
-						submit.setPadding(new Insets(0,50,20,50));
-						submit.setAlignment(Pos.BASELINE_RIGHT);
-						
-						
-						VBox design = new VBox();
-						design.setStyle("-fx-background-color: white; -fx-padding: 15;");
-						design.getChildren().setAll(topLine,questionBox,imageBox,topLineChoice,bottomLineChoice,submit);
-						Scene quiz = new Scene(design);
-						stage.setScene(quiz);
-						
 					}
 				}
 		);
@@ -807,6 +593,222 @@ public class Main extends Application {
 		return new Scene(design);
 		
 	}		
+	
+	private void quizLoop() {
+		List<ToggleButton> toggleGroup = new ArrayList<ToggleButton>();
+		Label questionNumber = new Label();
+		questionNumber.setText("Question " + (currQuestion+1));
+		questionNumber.setStyle("-fx-font-weight: bold; -fx-font-size: 40px;");
+			
+		ToggleGroup choiceGroup = new ToggleGroup();
+		
+		ToggleButton choiceOne = new ToggleButton();
+		toggleGroup.add(choiceOne);
+		choiceOne.setToggleGroup(choiceGroup);
+		choiceOne.setMinSize(250, 100);
+		choiceOne.setMaxSize(250, 100);
+		String initStyle1 = "-fx-background-color: #4CAF50;-fx-border: none; -fx-color: white; -fx-font-weight: bold;"
+				+ "-fx-text-align: left; -fx-text-decoration: none; fx-font-size: 20px; -fx-text-fill: white;-fx-background-radius: 5px;";
+		String hoverStyle1 = "-fx-background-color: #439747;-fx-border: 15px; -fx-border-color: black; -fx-border-style: solid; -fx-color: white; -fx-font-weight: bold;"
+				+ "-fx-text-align: left; -fx-text-decoration: none; fx-font-size: 20px; -fx-text-fill: white;-fx-background-radius: 5px;";
+		choiceOne.setOnAction(e->{
+			if(choiceOne.isSelected()) {
+				choiceOne.setStyle(hoverStyle1);
+			}
+			else{
+				choiceOne.setStyle(initStyle1);
+			}
+		});
+		choiceOne.setStyle(initStyle1);
+		
+		ToggleButton choiceTwo = new ToggleButton();
+		toggleGroup.add(choiceTwo);
+		choiceTwo.setToggleGroup(choiceGroup);
+		choiceTwo.setMinSize(250, 100);
+		choiceTwo.setMaxSize(250, 100);
+		String initStyle2 = "-fx-background-color: #007AFF;-fx-border: none; -fx-color: white; -fx-font-weight: bold;"
+				+ "-fx-text-align: left; -fx-text-decoration: none; fx-font-size: 20px; -fx-text-fill: white; -fx-background-radius: 5px;";
+		String hoverStyle2 = "-fx-background-color: #045BBA;-fx-border: 15px; -fx-border-color: black; -fx-border-style: solid; -fx-color: white; -fx-font-weight: bold;"
+				+ "-fx-text-align: left; -fx-text-decoration: none; fx-font-size: 20px; -fx-text-fill: white;-fx-background-radius: 5px;";
+		choiceTwo.setOnAction(e->{
+			if(choiceTwo.isSelected()) {
+				choiceTwo.setStyle(hoverStyle2);
+			}
+			else{
+				choiceTwo.setStyle(initStyle2);
+			}
+		});
+		choiceTwo.setStyle(initStyle2);
+		
+		ToggleButton choiceThree = new ToggleButton();
+		toggleGroup.add(choiceThree);
+		choiceThree.setToggleGroup(choiceGroup);
+		choiceThree.setMinSize(250, 100);
+		choiceThree.setMaxSize(250, 100);
+		String initStyle3 = "-fx-background-color: #FF003E;-fx-border: none; -fx-color: white; -fx-font-weight: bold;"
+				+ "-fx-text-align: left; -fx-text-decoration: none; fx-font-size: 20px; -fx-text-fill: white;-fx-background-radius: 5px;";
+		String hoverStyle3 =  "-fx-background-color: #D00335;-fx-border: 15px; -fx-border-color: black; -fx-border-style: solid; -fx-color: white; -fx-font-weight: bold;"
+				+ "-fx-text-align: left; -fx-text-decoration: none; fx-font-size: 20px; -fx-text-fill: white;-fx-background-radius: 5px;";
+		choiceThree.setOnAction(e->{
+			if(choiceThree.isSelected()) {
+				choiceThree.setStyle(hoverStyle3);
+			}
+			else{
+				choiceThree.setStyle(initStyle3);
+			}
+		});
+		choiceThree.setStyle(initStyle3);
+		
+		ToggleButton choiceFour = new ToggleButton();
+		toggleGroup.add(choiceFour);
+		choiceFour.setToggleGroup(choiceGroup);
+		choiceFour.setMinSize(250, 100);
+		choiceFour.setMaxSize(250, 100);
+		String initStyle4 = "-fx-background-color: #FFAD00;-fx-border: none; -fx-color: white; -fx-font-weight: bold;"
+				+ "-fx-text-align: left; -fx-text-decoration: none; fx-font-size: 20px; -fx-text-fill: white;-fx-background-radius: 5px;";
+		String hoverStyle4 =  "-fx-background-color: #E09903;-fx-border: 15px; -fx-border-color: black; -fx-border-style: solid; -fx-color: white; -fx-font-weight: bold;"
+				+ "-fx-text-align: left; -fx-text-decoration: none; fx-font-size: 20px; -fx-text-fill: white;-fx-background-radius: 5px;";
+		choiceFour.setOnAction(e->{
+			if(choiceFour.isSelected()) {
+				choiceFour.setStyle(hoverStyle4);
+			}
+			else{
+				choiceFour.setStyle(initStyle4);
+			}
+		});
+		choiceFour.setStyle(initStyle4);
+		
+		ToggleButton choiceFive = new ToggleButton();
+		toggleGroup.add(choiceFive);
+		choiceFive.setToggleGroup(choiceGroup);
+		choiceFive.setMinSize(250, 100);
+		choiceFive.setMaxSize(250, 100);
+		String initStyle5 = "-fx-background-color: #B600FF;-fx-border: none; -fx-color: white; -fx-font-weight: bold;"
+				+ "-fx-text-align: left; -fx-text-decoration: none; fx-font-size: 20px; -fx-text-fill: white;-fx-background-radius: 5px;";
+		String hoverStyle5 =  "-fx-background-color: #8705BB;-fx-border: 15px; -fx-border-color: black; -fx-border-style: solid; -fx-color: white; -fx-font-weight: bold;"
+				+ "-fx-text-align: left; -fx-text-decoration: none; fx-font-size: 20px; -fx-text-fill: white;-fx-background-radius: 5px;";
+		choiceFive.setOnAction(e->{
+			if(choiceFive.isSelected()) {
+				choiceFive.setStyle(hoverStyle5);
+			}
+			else{
+				choiceFive.setStyle(initStyle5);
+			}
+		});
+		choiceFive.setStyle(initStyle5);
+		
+		
+		for(int j = 0; j<quizQuestions.get(currQuestion).getChoices().size();j++) {
+			toggleGroup.get(j).setText(quizQuestions.get(currQuestion).getChoices().get(j).getChoiceText());
+		}
+		for(int k = 0; k< toggleGroup.size();k++) {
+			if(toggleGroup.get(k).getText().length()<=0) {
+				toggleGroup.get(k).setStyle("-fx-background-color: white;-fx-border: none; -fx-color: white;");
+				toggleGroup.get(k).setDisable(true);
+			}
+		}
+		
+		HBox topLineChoice = new HBox();
+		topLineChoice.setSpacing(7);
+		topLineChoice.setPadding(new Insets(0,20,10,20));
+		topLineChoice.setAlignment(Pos.BASELINE_CENTER);
+		topLineChoice.getChildren().setAll(choiceOne,choiceTwo,choiceThree);
+		
+		HBox bottomLineChoice = new HBox();
+		bottomLineChoice.setSpacing(7);
+		bottomLineChoice.setPadding(new Insets(0,20,30,20));
+		bottomLineChoice.setAlignment(Pos.BASELINE_CENTER);
+		bottomLineChoice.getChildren().setAll(choiceFour,choiceFive);
+				
+		Button nextButton = new Button();
+		String initStyleN = "-fx-font-weight: bold; -fx-background-color: D5D6D6;-fx-font-size: 24px;-fx-background-radius: 10px";
+		String hoverStyleN = "-fx-font-weight: bold; -fx-background-color: C5C6C6;-fx-font-size: 24px;-fx-background-radius: 10px";
+		nextButton.setText("Next");
+		nextButton.setMaxSize(225, 150);
+		nextButton.setStyle(initStyleN);
+		nextButton.setOnMouseEntered(e->nextButton.setStyle(hoverStyleN));
+		nextButton.setOnMouseExited(e->nextButton.setStyle(initStyleN));
+		nextButton.setOnAction(
+				new EventHandler<ActionEvent>() {
+					public void handle(ActionEvent t) {
+						if(currQuestion < numQuestions-1) {
+							currQuestion++;
+							quizLoop();
+						}
+						else {
+							stage.setScene(resultsScene);
+						}
+					}
+				}
+		);
+		
+		HBox topLine = new HBox();
+		topLine.setSpacing(100);
+		topLine.setAlignment(Pos.BASELINE_RIGHT);
+		topLine.setPadding(new Insets(30,100,25,30));
+		topLine.getChildren().setAll(questionNumber,nextButton);
+
+		Image image;
+		if(quizQuestions.get(currQuestion).getImageString().trim().equals("none")){
+			image = new Image("quizTemp.jpg");
+		}
+		else {
+			image = new Image(quizQuestions.get(currQuestion).getImageString());
+		}
+		ImageView imageView = new ImageView(image);
+		imageView.setFitHeight(200);
+		imageView.setFitWidth(200);
+		
+		HBox imageBox = new HBox();
+		imageBox.setSpacing(10);
+		imageBox.setAlignment(Pos.BASELINE_CENTER);
+		imageBox.getChildren().setAll(imageView);
+		imageBox.setPadding(new Insets(0,0,25,0));
+		
+		Label questionText = new Label();
+		questionText.setText(quizQuestions.get(currQuestion).getQuestionText());
+		questionText.setStyle("-fx-font-weight: bold; -fx-font-size: 20px;");
+		
+		HBox questionBox = new HBox();
+		questionBox.getChildren().setAll(questionText);
+		questionBox.setPadding(new Insets(0,20,20,20));
+		questionBox.setAlignment(Pos.BASELINE_CENTER);
+		
+		
+		Button submitButton = new Button();
+		submitButton.setText("Submit Quiz");
+		submitButton.setMaxSize(150, 100);
+		String init = "-fx-background-color: lightblue; -fx-color: black; "
+				+ "-fx-background-radius: 5px; -fx-text-align: center; -fx-text-fill: black; -fx-text-decoration: none; -fx-display: inline-block; -fx-font-size: 14px;";
+		String hover = "-fx-background-color: #058984; -fx-color: black; -fx-border: 5px; -fx-border-color: #4CAF50; -fx-border-style: solid;"
+				+ "-fx-background-radius: 5px; -fx-text-align: center; -fx-text-fill: white; -fx-text-decoration: none; -fx-display: inline-block; -fx-font-size: 14px;";
+		submitButton.setStyle(init);
+		submitButton.setOnMouseEntered(e->submitButton.setStyle(hover));
+		submitButton.setOnMouseExited(e->submitButton.setStyle(init));
+		submitButton.setOnAction(
+				new EventHandler<ActionEvent>() {
+					public void handle(ActionEvent t) {
+						for(int i = 0; i<choices.size();i++) {
+							System.out.println(choices.get(i));
+						}
+						stage.setScene(resultsScene);
+						stage.show();
+					}
+				}
+		);
+		
+		HBox submit = new HBox();
+		submit.getChildren().setAll(submitButton);
+		submit.setPadding(new Insets(0,50,20,50));
+		submit.setAlignment(Pos.BASELINE_RIGHT);
+		
+		
+		VBox design = new VBox();
+		design.setStyle("-fx-background-color: white; -fx-padding: 15;");
+		design.getChildren().setAll(topLine,questionBox,imageBox,topLineChoice,bottomLineChoice,submit);
+		Scene quiz = new Scene(design);
+		stage.setScene(quiz);
+	}
 	
 	private Scene createResultsScene() {
 		Label questionNumber = new Label();
