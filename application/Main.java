@@ -1,6 +1,7 @@
 package application;
 	
 import java.util.ArrayList;
+import java.util.List;
 
 import javafx.application.Application;
 //import javafx.collections.FXCollections;
@@ -20,26 +21,37 @@ public class Main extends Application {
 	private Scene addQScene;
 	private Scene addJSONScene;
 	private Scene quizStartScene;
-	private Scene mainQuizScene;
+	//private Scene mainQuizScene;
 	private Scene resultsScene;
 	private Label label;
 	
-	private int questionNum = 1;
+	
+	private int currQuestion = 0;
 	private ArrayList<String> choices= new ArrayList<String>();
+	
+	
 	
 	private Stage stage;
 	
+	private Quiz quiz;
+	private List<Question> quizQuestions;
+	
+	private int numQuestions = 0;
+	private int numCorrect = 0;
+	
 	public void start(Stage primaryStage) {
 		stage = primaryStage;
+		
+		quiz = new Quiz();	
+		quizQuestions = new ArrayList<Question>();
 		
 		primaryScene = createPrimaryScene();
 		addQScene = createAddQScene();
 		addJSONScene = createAddJSONScene();
 		quizStartScene = createQuizStartScene();
-		mainQuizScene = createMainQuizScene();
+		//mainQuizScene = createMainQuizScene();
 		resultsScene = createResultsScene();
-		
-		
+				
 		stage.setScene(primaryScene);
 		stage.show();
 	}
@@ -108,6 +120,21 @@ public class Main extends Application {
 		quizButton.setOnAction(
 				new EventHandler<ActionEvent>() {
 					public void handle(ActionEvent t) {
+						if(quiz.getNumTopics()<=0) {
+							Alert alert = new Alert(Alert.AlertType.INFORMATION);
+							alert.setTitle("ERROR FOUND");
+							alert.setHeaderText(null);
+							alert.setContentText("No Question Added | Quiz Not Started");
+							alert.showAndWait();
+							stage.setScene(primaryScene);
+							stage.show();
+						}
+						else {
+							stage.setScene(quizStartScene);
+							stage.show();
+							System.out.println("Pressed");
+						}
+						
 						stage.setScene(quizStartScene);
 						stage.show();
 						System.out.println("Pressed");
@@ -129,6 +156,7 @@ public class Main extends Application {
 		
 		
 	}
+	
 	
 	@SuppressWarnings("unused")
 	private Scene createAddQScene() {
@@ -195,6 +223,26 @@ public class Main extends Application {
 		questionLine.setPadding(new Insets(0,0,7,0));
 		questionLine.getChildren().setAll(question, questionBox);
 		
+		Label image = new Label();
+		image.setText("Image URL: ");
+		image.setStyle("-fx-font: italic 17px Georgia, serif;");
+		
+		TextArea imageBox = new TextArea();
+		imageBox.setPrefColumnCount(10);
+		imageBox.setPrefRowCount(1);
+		imageBox.setStyle("-fx-border: 2px; -fx-border-color: #4CAF50;-fx-border-radius: 5px;");
+		
+		Label imageInstructions = new Label();
+		imageInstructions.setText("(enter \"none\" if N/A)");
+		imageInstructions.setStyle("-fx-font: italic 10px Georgia, serif;");
+		
+		VBox images = new VBox();
+		images.getChildren().setAll(image,imageInstructions);
+		
+		HBox imageLine = new HBox();
+		imageLine.setSpacing(36);
+		imageLine.setPadding(new Insets(0,0,7,0));
+		imageLine.getChildren().setAll(images, imageBox);
 		
 		Label choice = new Label();
 		choice.setText("Enter Choices: ");
@@ -244,17 +292,53 @@ public class Main extends Application {
 		submitButton.setOnAction(
 				new EventHandler<ActionEvent>() {
 					public void handle(ActionEvent t) {
-						System.out.println(topicBox.getText());
+						String topicText = topicBox.getText();
 						topicBox.setText("");
-						System.out.println(questionBox.getText());
+						String questionText = questionBox.getText();
 						questionBox.setText("");
+						String imageText = imageBox.getText();
+						imageBox.setText("");
+						List<Choice> choices = new ArrayList<Choice>();
 						for(int i = 0; i<arrText.size();i++) {
+							if(arrText.get(i).getText().length()>0) {
+								choices.add(new Choice(false,arrText.get(i).getText()));
+							}							
 							System.out.println(arrText.get(i).getText());
 							arrText.get(i).setText("");
 						}
-						stage.setScene(primaryScene);
-						stage.show();
-						System.out.println("Pressed");
+						if(topicText.length()<=0 || questionText.length()<=0 || choices.size() == 0) {
+							Alert alert = new Alert(Alert.AlertType.INFORMATION);
+							alert.setTitle("ERROR FOUND");
+							alert.setHeaderText(null);
+							alert.setContentText("Invalid Entry | Question Not Added");
+							alert.showAndWait();
+							topicBox.setText("");
+							questionBox.setText("");
+							imageBox.setText("");
+							choices.clear();
+							stage.setScene(addQScene);
+						}
+						else {
+							try {
+								for(int i = 0; i<arrRadio.size();i++) {
+									if(arrRadio.get(i).isSelected()) {
+										choices.get(i).setIsCorrect(true);
+									}
+									arrRadio.get(i).setSelected(false);
+								}
+							} catch(IndexOutOfBoundsException e) {
+								Alert alert = new Alert(Alert.AlertType.INFORMATION);
+								alert.setTitle("ERROR FOUND");
+								alert.setHeaderText(null);
+								alert.setContentText("Invalid Choice | Question Not Added");
+								alert.showAndWait();
+								stage.setScene(primaryScene);
+							}
+							quiz.addQuestion(topicText, questionText, choices, imageText);
+							stage.setScene(primaryScene);
+							stage.show();
+							System.out.println("Pressed");
+						}
 					}
 				}
 		);
@@ -263,9 +347,10 @@ public class Main extends Application {
 		submit.setAlignment(Pos.BASELINE_CENTER);
 			
 		
-		design.getChildren().setAll(topLine,topicLine,questionLine,choiceLine,submit);
+		design.getChildren().setAll(topLine,topicLine,questionLine,imageLine,choiceLine,submit);
 		return new Scene(design);
 	}
+	
 	
 	private Scene createAddJSONScene() {
 		VBox design = new VBox(10);
@@ -350,9 +435,27 @@ public class Main extends Application {
 		submitButton.setOnAction(
 				new EventHandler<ActionEvent>() {
 					public void handle(ActionEvent t) {
-						System.out.println(JSONBox.getText());
+						String filePath = JSONBox.getText();
+						try {
+							quiz.addQuestion(filePath);
+						} catch(IllegalArgumentException e) {
+							Alert alert = new Alert(Alert.AlertType.INFORMATION);
+							alert.setTitle("ERROR FOUND");
+							alert.setHeaderText(null);
+							alert.setContentText("Invalid JSON Filepath | Question(s) Not Added");
+							alert.showAndWait();
+							stage.setScene(primaryScene);
+						}
 						JSONBox.setText("");
 						sampleText.setText(sampleJSON);
+						/**
+						List<Question> q = quiz.getAllQuestion();
+						for(int i = 0; i<q.size();i++) {
+							System.out.println(q.get(i).getQuestionText());;
+							System.out.println(q.get(i).getImageString());
+							System.out.println(q.get(i).getChoices().toString());
+						}
+						*/
 						stage.setScene(primaryScene);
 						stage.show();
 						System.out.println("Pressed");
@@ -369,6 +472,7 @@ public class Main extends Application {
 		
 		
 	}
+	
 	
 	private Scene createQuizStartScene() {
 		VBox design = new VBox();
@@ -414,29 +518,26 @@ public class Main extends Application {
 		menuButton.setOnMouseExited(e->menuButton.setStyle("-fx-mark-color: #058984; -fx-background-color:lightblue;-fx-font: 10px Georgia, serif;"));
 		ArrayList<CheckBox> listCheckMenu= new ArrayList<CheckBox>();
 		ArrayList<CustomMenuItem> listMenuItem= new ArrayList<CustomMenuItem>();
+			 
+		menuButton.setOnMouseEntered(e ->{
+			menuButton.setStyle("-fx-mark-color: lightblue; -fx-background-color:#058984;-fx-font: 10px Georgia, serif;");
+			List<String> topic = quiz.getTopicNames();
+			
+			listCheckMenu.clear();
+			listMenuItem.clear();
+			
+			for(int k = 0; k<topic.size();k++) {
+				listCheckMenu.add(new CheckBox(topic.get(k)));
+				System.out.println(topic.get(k));
+				listCheckMenu.get(k).setStyle("-fx-font: 10px Georgia, serif;");
+				listMenuItem.add(new CustomMenuItem(listCheckMenu.get(k)));
+				listMenuItem.get(k).setHideOnClick(false);			
+			
+			}
+			menuButton.getItems().setAll();
+			menuButton.getItems().setAll(listMenuItem);
+		});
 		
-		for(int i = 0; i<5;i++) {
-			listCheckMenu.add(new CheckBox("Topic: " + i));
-			listCheckMenu.get(i).setStyle("-fx-font: 10px Georgia, serif;");
-			listMenuItem.add(new CustomMenuItem(listCheckMenu.get(i)));
-			listMenuItem.get(i).setHideOnClick(false);
-			menuButton.getItems().add(listMenuItem.get(i));
-		}
-		
-		for(int i = 0; i<listCheckMenu.size();i++) {
-			listCheckMenu.get(i).setOnAction(
-				new EventHandler<ActionEvent>() {
-					int i = 0;
-					int fontSize = 10;
-					public void handle(ActionEvent t) {
-						if(listCheckMenu.get(i).isSelected()) {
-							menuButton.setText(menuButton.getText() + " " + listCheckMenu.get(i).getText());
-							i++;
-						}
-					}
-				}
-			);
-		}
 		
 		HBox topicBox = new HBox();
 		topicBox.setSpacing(20);
@@ -472,16 +573,38 @@ public class Main extends Application {
 		submitButton.setOnAction(
 				new EventHandler<ActionEvent>() {
 					public void handle(ActionEvent t) {
+						List<Topic> topics = new ArrayList<Topic>();
+						int size = 0;
 						for(int i = 0; i<listCheckMenu.size();i++) {
 							if(listCheckMenu.get(i).isSelected()) {
-								System.out.println(listCheckMenu.get(i).getText());
-								listCheckMenu.get(i).setSelected(false);;
+								topics.add(quiz.getTopic(listCheckMenu.get(i).getText()));
+								size+= quiz.getTopic(listCheckMenu.get(i).getText()).getQuestionList().size();
 							}
+							
 						}
-						//System.out.println(Integer.parseInt(sampleText.getText()));
+						numQuestions = Integer.parseInt(sampleText.getText());
+						if(numQuestions > size) {
+							numQuestions = size;
+						}
 						sampleText.setText("");
-						stage.setScene(mainQuizScene);
-						stage.show();
+						quizQuestions = quiz.startQuiz(topics, numQuestions);
+						for(int i = 0; i<quizQuestions.size(); i++) {
+							System.out.println(quizQuestions.get(i).getQuestionText());
+						}
+						
+						if(topics.size()==0) {
+							Alert alert = new Alert(Alert.AlertType.INFORMATION);
+							alert.setTitle("ERROR FOUND");
+							alert.setHeaderText(null);
+							alert.setContentText("No Topics Selected | Quiz Not Started");
+							alert.showAndWait();
+							stage.setScene(quizStartScene);
+						}
+						else {
+							quizLoop();
+						}
+
+							
 					}
 				}
 		);
@@ -492,24 +615,79 @@ public class Main extends Application {
 		design.getChildren().setAll(topLine,topicBox,qBox,submit);
 		return new Scene(design);
 		
-	}
+	}		
 	
-	private Scene createMainQuizScene() {
+	
+	private void quizLoop() {
+		List<ToggleButton> toggleGroup = new ArrayList<ToggleButton>();
+		List<String> styles = new ArrayList<String>();
 		Label questionNumber = new Label();
-		questionNumber.setText("Question " + questionNum);
+		questionNumber.setText("Question " + (currQuestion+1));
 		questionNumber.setStyle("-fx-font-weight: bold; -fx-font-size: 40px;");
 			
 		ToggleGroup choiceGroup = new ToggleGroup();
 		
 		ToggleButton choiceOne = new ToggleButton();
+		toggleGroup.add(choiceOne);
 		choiceOne.setToggleGroup(choiceGroup);
 		choiceOne.setMinSize(250, 100);
 		choiceOne.setMaxSize(250, 100);
-		choiceOne.setText("choice 1");
 		String initStyle1 = "-fx-background-color: #4CAF50;-fx-border: none; -fx-color: white; -fx-font-weight: bold;"
 				+ "-fx-text-align: left; -fx-text-decoration: none; fx-font-size: 20px; -fx-text-fill: white;-fx-background-radius: 5px;";
 		String hoverStyle1 = "-fx-background-color: #439747;-fx-border: 15px; -fx-border-color: black; -fx-border-style: solid; -fx-color: white; -fx-font-weight: bold;"
 				+ "-fx-text-align: left; -fx-text-decoration: none; fx-font-size: 20px; -fx-text-fill: white;-fx-background-radius: 5px;";
+		styles.add(initStyle1);
+		choiceOne.setStyle(initStyle1);
+		
+		ToggleButton choiceTwo = new ToggleButton();
+		toggleGroup.add(choiceTwo);
+		choiceTwo.setToggleGroup(choiceGroup);
+		choiceTwo.setMinSize(250, 100);
+		choiceTwo.setMaxSize(250, 100);
+		String initStyle2 = "-fx-background-color: #007AFF;-fx-border: none; -fx-color: white; -fx-font-weight: bold;"
+				+ "-fx-text-align: left; -fx-text-decoration: none; fx-font-size: 20px; -fx-text-fill: white; -fx-background-radius: 5px;";
+		String hoverStyle2 = "-fx-background-color: #045BBA;-fx-border: 15px; -fx-border-color: black; -fx-border-style: solid; -fx-color: white; -fx-font-weight: bold;"
+				+ "-fx-text-align: left; -fx-text-decoration: none; fx-font-size: 20px; -fx-text-fill: white;-fx-background-radius: 5px;";
+		styles.add(initStyle2);
+		choiceTwo.setStyle(initStyle2);
+		
+		ToggleButton choiceThree = new ToggleButton();
+		toggleGroup.add(choiceThree);
+		choiceThree.setToggleGroup(choiceGroup);
+		choiceThree.setMinSize(250, 100);
+		choiceThree.setMaxSize(250, 100);
+		String initStyle3 = "-fx-background-color: #FF003E;-fx-border: none; -fx-color: white; -fx-font-weight: bold;"
+				+ "-fx-text-align: left; -fx-text-decoration: none; fx-font-size: 20px; -fx-text-fill: white;-fx-background-radius: 5px;";
+		String hoverStyle3 =  "-fx-background-color: #D00335;-fx-border: 15px; -fx-border-color: black; -fx-border-style: solid; -fx-color: white; -fx-font-weight: bold;"
+				+ "-fx-text-align: left; -fx-text-decoration: none; fx-font-size: 20px; -fx-text-fill: white;-fx-background-radius: 5px;";
+		styles.add(initStyle3);
+		choiceThree.setStyle(initStyle3);
+		
+		ToggleButton choiceFour = new ToggleButton();
+		toggleGroup.add(choiceFour);
+		choiceFour.setToggleGroup(choiceGroup);
+		choiceFour.setMinSize(250, 100);
+		choiceFour.setMaxSize(250, 100);
+		String initStyle4 = "-fx-background-color: #FFAD00;-fx-border: none; -fx-color: white; -fx-font-weight: bold;"
+				+ "-fx-text-align: left; -fx-text-decoration: none; fx-font-size: 20px; -fx-text-fill: white;-fx-background-radius: 5px;";
+		String hoverStyle4 =  "-fx-background-color: #E09903;-fx-border: 15px; -fx-border-color: black; -fx-border-style: solid; -fx-color: white; -fx-font-weight: bold;"
+				+ "-fx-text-align: left; -fx-text-decoration: none; fx-font-size: 20px; -fx-text-fill: white;-fx-background-radius: 5px;";
+		styles.add(initStyle4);
+		choiceFour.setStyle(initStyle4);
+		
+		ToggleButton choiceFive = new ToggleButton();
+		toggleGroup.add(choiceFive);
+		choiceFive.setToggleGroup(choiceGroup);
+		choiceFive.setMinSize(250, 100);
+		choiceFive.setMaxSize(250, 100);
+		String initStyle5 = "-fx-background-color: #B600FF;-fx-border: none; -fx-color: white; -fx-font-weight: bold;"
+				+ "-fx-text-align: left; -fx-text-decoration: none; fx-font-size: 20px; -fx-text-fill: white;-fx-background-radius: 5px;";
+		String hoverStyle5 =  "-fx-background-color: #8705BB;-fx-border: 15px; -fx-border-color: black; -fx-border-style: solid; -fx-color: white; -fx-font-weight: bold;"
+				+ "-fx-text-align: left; -fx-text-decoration: none; fx-font-size: 20px; -fx-text-fill: white;-fx-background-radius: 5px;";
+		styles.add(initStyle5);
+		choiceFive.setStyle(initStyle5);
+		
+		
 		choiceOne.setOnAction(e->{
 			if(choiceOne.isSelected()) {
 				choiceOne.setStyle(hoverStyle1);
@@ -517,18 +695,20 @@ public class Main extends Application {
 			else{
 				choiceOne.setStyle(initStyle1);
 			}
+			
+			choiceTwo.setSelected(false);
+			choiceTwo.setStyle(initStyle2);
+			
+			choiceThree.setSelected(false);
+			choiceThree.setStyle(initStyle3);
+			
+			choiceFour.setSelected(false);
+			choiceFour.setStyle(initStyle4);
+			
+			choiceFive.setSelected(false);
+			choiceFive.setStyle(initStyle5);
 		});
-		choiceOne.setStyle(initStyle1);
 		
-		ToggleButton choiceTwo = new ToggleButton();
-		choiceTwo.setToggleGroup(choiceGroup);
-		choiceTwo.setMinSize(250, 100);
-		choiceTwo.setMaxSize(250, 100);
-		choiceTwo.setText("choice 2");
-		String initStyle2 = "-fx-background-color: #007AFF;-fx-border: none; -fx-color: white; -fx-font-weight: bold;"
-				+ "-fx-text-align: left; -fx-text-decoration: none; fx-font-size: 20px; -fx-text-fill: white; -fx-background-radius: 5px;";
-		String hoverStyle2 = "-fx-background-color: #045BBA;-fx-border: 15px; -fx-border-color: black; -fx-border-style: solid; -fx-color: white; -fx-font-weight: bold;"
-				+ "-fx-text-align: left; -fx-text-decoration: none; fx-font-size: 20px; -fx-text-fill: white;-fx-background-radius: 5px;";
 		choiceTwo.setOnAction(e->{
 			if(choiceTwo.isSelected()) {
 				choiceTwo.setStyle(hoverStyle2);
@@ -536,18 +716,19 @@ public class Main extends Application {
 			else{
 				choiceTwo.setStyle(initStyle2);
 			}
+			choiceOne.setSelected(false);
+			choiceOne.setStyle(initStyle1);
+			
+			choiceThree.setSelected(false);
+			choiceThree.setStyle(initStyle3);
+			
+			choiceFour.setSelected(false);
+			choiceFour.setStyle(initStyle4);
+			
+			choiceFive.setSelected(false);
+			choiceFive.setStyle(initStyle5);
 		});
-		choiceTwo.setStyle(initStyle2);
 		
-		ToggleButton choiceThree = new ToggleButton();
-		choiceThree.setToggleGroup(choiceGroup);
-		choiceThree.setMinSize(250, 100);
-		choiceThree.setMaxSize(250, 100);
-		choiceThree.setText("choice 3");
-		String initStyle3 = "-fx-background-color: #FF003E;-fx-border: none; -fx-color: white; -fx-font-weight: bold;"
-				+ "-fx-text-align: left; -fx-text-decoration: none; fx-font-size: 20px; -fx-text-fill: white;-fx-background-radius: 5px;";
-		String hoverStyle3 =  "-fx-background-color: #D00335;-fx-border: 15px; -fx-border-color: black; -fx-border-style: solid; -fx-color: white; -fx-font-weight: bold;"
-				+ "-fx-text-align: left; -fx-text-decoration: none; fx-font-size: 20px; -fx-text-fill: white;-fx-background-radius: 5px;";
 		choiceThree.setOnAction(e->{
 			if(choiceThree.isSelected()) {
 				choiceThree.setStyle(hoverStyle3);
@@ -555,18 +736,21 @@ public class Main extends Application {
 			else{
 				choiceThree.setStyle(initStyle3);
 			}
+			choiceTwo.setSelected(false);
+			choiceTwo.setStyle(initStyle2);
+			
+			choiceOne.setSelected(false);
+			choiceOne.setStyle(initStyle1);
+			
+			choiceFour.setSelected(false);
+			choiceFour.setStyle(initStyle4);
+			
+			choiceFive.setSelected(false);
+			choiceFive.setStyle(initStyle5);
 		});
 		choiceThree.setStyle(initStyle3);
 		
-		ToggleButton choiceFour = new ToggleButton();
-		choiceFour.setToggleGroup(choiceGroup);
-		choiceFour.setMinSize(250, 100);
-		choiceFour.setMaxSize(250, 100);
-		choiceFour.setText("choice 4");
-		String initStyle4 = "-fx-background-color: #FFAD00;-fx-border: none; -fx-color: white; -fx-font-weight: bold;"
-				+ "-fx-text-align: left; -fx-text-decoration: none; fx-font-size: 20px; -fx-text-fill: white;-fx-background-radius: 5px;";
-		String hoverStyle4 =  "-fx-background-color: #E09903;-fx-border: 15px; -fx-border-color: black; -fx-border-style: solid; -fx-color: white; -fx-font-weight: bold;"
-				+ "-fx-text-align: left; -fx-text-decoration: none; fx-font-size: 20px; -fx-text-fill: white;-fx-background-radius: 5px;";
+		
 		choiceFour.setOnAction(e->{
 			if(choiceFour.isSelected()) {
 				choiceFour.setStyle(hoverStyle4);
@@ -574,18 +758,19 @@ public class Main extends Application {
 			else{
 				choiceFour.setStyle(initStyle4);
 			}
+			choiceTwo.setSelected(false);
+			choiceTwo.setStyle(initStyle2);
+			
+			choiceThree.setSelected(false);
+			choiceThree.setStyle(initStyle3);
+			
+			choiceOne.setSelected(false);
+			choiceOne.setStyle(initStyle1);
+			
+			choiceFive.setSelected(false);
+			choiceFive.setStyle(initStyle5);
 		});
-		choiceFour.setStyle(initStyle4);
 		
-		ToggleButton choiceFive = new ToggleButton();
-		choiceFive.setToggleGroup(choiceGroup);
-		choiceFive.setMinSize(250, 100);
-		choiceFive.setMaxSize(250, 100);
-		choiceFive.setText("choice 5");
-		String initStyle5 = "-fx-background-color: #B600FF;-fx-border: none; -fx-color: white; -fx-font-weight: bold;"
-				+ "-fx-text-align: left; -fx-text-decoration: none; fx-font-size: 20px; -fx-text-fill: white;-fx-background-radius: 5px;";
-		String hoverStyle5 =  "-fx-background-color: #8705BB;-fx-border: 15px; -fx-border-color: black; -fx-border-style: solid; -fx-color: white; -fx-font-weight: bold;"
-				+ "-fx-text-align: left; -fx-text-decoration: none; fx-font-size: 20px; -fx-text-fill: white;-fx-background-radius: 5px;";
 		choiceFive.setOnAction(e->{
 			if(choiceFive.isSelected()) {
 				choiceFive.setStyle(hoverStyle5);
@@ -593,39 +778,75 @@ public class Main extends Application {
 			else{
 				choiceFive.setStyle(initStyle5);
 			}
+			choiceTwo.setSelected(false);
+			choiceTwo.setStyle(initStyle2);
+			
+			choiceThree.setSelected(false);
+			choiceThree.setStyle(initStyle3);
+			
+			choiceFour.setSelected(false);
+			choiceFour.setStyle(initStyle4);
+			
+			choiceOne.setSelected(false);
+			choiceOne.setStyle(initStyle1);
 		});
-		choiceFive.setStyle(initStyle5);
+		
+		
+		
+		
+		
+		
+		
+		
+		int size = 0;
+		for(int j = 0; j<quizQuestions.get(currQuestion).getChoices().size();j++) {
+			toggleGroup.get(j).setText(quizQuestions.get(currQuestion).getChoices().get(j).getChoiceText());
+		}
+		for(int k = 0; k< toggleGroup.size();k++) {
+			if(toggleGroup.get(k).getText().length()<=0) {
+				
+				
+				toggleGroup.get(k).setStyle("-fx-background-color: white;-fx-border: none; -fx-color: white;");
+				toggleGroup.get(k).setDisable(true);
+				
+				
+			}
+			else {
+				size++;
+			}
+		}
 		
 		HBox topLineChoice = new HBox();
 		topLineChoice.setSpacing(7);
 		topLineChoice.setPadding(new Insets(0,20,10,20));
 		topLineChoice.setAlignment(Pos.BASELINE_CENTER);
-		topLineChoice.getChildren().setAll(choiceOne,choiceTwo,choiceThree);
 		
+			
 		HBox bottomLineChoice = new HBox();
 		bottomLineChoice.setSpacing(7);
 		bottomLineChoice.setPadding(new Insets(0,20,30,20));
 		bottomLineChoice.setAlignment(Pos.BASELINE_CENTER);
-		bottomLineChoice.getChildren().setAll(choiceFour,choiceFive);
 		
-		Button returnButton = new Button();
-		String initStyle = "-fx-font-weight: bold; -fx-background-color: D5D6D6;-fx-font-size: 24px;-fx-background-radius: 10px";
-		String hoverStyle = "-fx-font-weight: bold; -fx-background-color: C5C6C6;-fx-font-size: 24px;-fx-background-radius: 10px";
-		returnButton.setText("Prev");
-		returnButton.setMaxSize(225, 150);
-		returnButton.setStyle(initStyle);
-		returnButton.setOnMouseEntered(e->returnButton.setStyle(hoverStyle));
-		returnButton.setOnMouseExited(e->returnButton.setStyle(initStyle));
-		returnButton.setOnAction(
-				new EventHandler<ActionEvent>() {
-					public void handle(ActionEvent t) {
-						if(questionNum>1)
-							questionNum--;
-							questionNumber.setText("Question " + questionNum);
-					}
-				}
-		);
 		
+		if(size == 2) {
+			topLineChoice.getChildren().setAll(choiceOne,choiceTwo);
+		}
+		
+		if(size == 3) {
+			topLineChoice.getChildren().setAll(choiceOne,choiceTwo);
+			bottomLineChoice.getChildren().setAll(choiceThree);
+		}
+		
+		if(size == 4) {
+			topLineChoice.getChildren().setAll(choiceOne,choiceTwo);
+			bottomLineChoice.getChildren().setAll(choiceThree,choiceFour);
+		}
+		
+		if(size == 5) {
+			topLineChoice.getChildren().setAll(choiceOne,choiceTwo,choiceThree);
+			bottomLineChoice.getChildren().setAll(choiceFour,choiceFive);
+		}
+				
 		Button nextButton = new Button();
 		String initStyleN = "-fx-font-weight: bold; -fx-background-color: D5D6D6;-fx-font-size: 24px;-fx-background-radius: 10px";
 		String hoverStyleN = "-fx-font-weight: bold; -fx-background-color: C5C6C6;-fx-font-size: 24px;-fx-background-radius: 10px";
@@ -634,47 +855,58 @@ public class Main extends Application {
 		nextButton.setStyle(initStyleN);
 		nextButton.setOnMouseEntered(e->nextButton.setStyle(hoverStyleN));
 		nextButton.setOnMouseExited(e->nextButton.setStyle(initStyleN));
-		nextButton.setOnAction(
-				new EventHandler<ActionEvent>() {
-					public void handle(ActionEvent t) {
-						questionNum++;
-						questionNumber.setText("Question " + questionNum);
-						if(choiceOne.isSelected()) {
-							choices.add(choiceOne.getText());
-							choiceOne.setSelected(false);
-							choiceOne.setStyle(initStyle1);
+		nextButton.setOnAction(e -> {
+					if(currQuestion < numQuestions-1) {
+						
+						
+						for(int x = 0; x<quizQuestions.get(currQuestion).getChoices().size(); x++) {
+
+								if(toggleGroup.get(x).isSelected()) {
+									
+									for(int y = 0;y<quizQuestions.get(currQuestion).getChoices().size(); y++) {
+										
+										if(toggleGroup.get(x).getText().equals(quizQuestions.get(currQuestion).getChoices().get(y).getChoiceText())) {
+											numCorrect++;	
+										}
+										
+									}
+								}
+								
+								
+							
+							
 						}
-						else if(choiceTwo.isSelected()) {
-							choices.add(choiceTwo.getText());
-							choiceTwo.setSelected(false);
-							choiceTwo.setStyle(initStyle2);
-						}
-						else if(choiceThree.isSelected()) {
-							choices.add(choiceThree.getText());
-							choiceThree.setSelected(false);
-							choiceThree.setStyle(initStyle3);
-						}
-						else if(choiceFour.isSelected()) {
-							choices.add(choiceFour.getText());
-							choiceFour.setSelected(false);
-							choiceFour.setStyle(initStyle4);
-						}
-						else if(choiceFive.isSelected()) {
-							choices.add(choiceFive.getText());
-							choiceFive.setSelected(false);
-							choiceFive.setStyle(initStyle5);
-						}
+						currQuestion++;
+						quizLoop();
+						
+						
+						
+					}
+					else {
+						stage.setScene(resultsScene);
 					}
 				}
 		);
 		
 		HBox topLine = new HBox();
 		topLine.setSpacing(100);
-		topLine.setAlignment(Pos.BASELINE_CENTER);
-		topLine.setPadding(new Insets(30,30,25,30));
-		topLine.getChildren().setAll(returnButton,questionNumber,nextButton);
+		topLine.setAlignment(Pos.BASELINE_RIGHT);
+		topLine.setPadding(new Insets(0,25,25,0));
+		topLine.getChildren().setAll(nextButton);
 		
-		Image image = new Image("quizTemp.jpg");
+		HBox top2Line = new HBox();
+		top2Line.setSpacing(100);
+		top2Line.setAlignment(Pos.BASELINE_CENTER);
+		top2Line.setPadding(new Insets(0,100,25,50));
+		top2Line.getChildren().setAll(questionNumber);
+
+		Image image;
+		if(quizQuestions.get(currQuestion).getImageString().trim().equals("none") || quizQuestions.get(currQuestion).getImageString().trim().length() == 0){
+			image = new Image("quizTemp.jpg");
+		}
+		else {
+			image = new Image(quizQuestions.get(currQuestion).getImageString());
+		}
 		ImageView imageView = new ImageView(image);
 		imageView.setFitHeight(200);
 		imageView.setFitWidth(200);
@@ -686,7 +918,7 @@ public class Main extends Application {
 		imageBox.setPadding(new Insets(0,0,25,0));
 		
 		Label questionText = new Label();
-		questionText.setText("\"Question Text\"");
+		questionText.setText(quizQuestions.get(currQuestion).getQuestionText());
 		questionText.setStyle("-fx-font-weight: bold; -fx-font-size: 20px;");
 		
 		HBox questionBox = new HBox();
@@ -725,10 +957,11 @@ public class Main extends Application {
 		
 		VBox design = new VBox();
 		design.setStyle("-fx-background-color: white; -fx-padding: 15;");
-		design.getChildren().setAll(topLine,questionBox,imageBox,topLineChoice,bottomLineChoice,submit);
-		return new Scene(design);
-		
+		design.getChildren().setAll(topLine,top2Line,questionBox,imageBox,topLineChoice,bottomLineChoice,submit);
+		Scene quiz = new Scene(design);
+		stage.setScene(quiz);
 	}
+	
 	
 	private Scene createResultsScene() {
 		Label questionNumber = new Label();
@@ -807,6 +1040,7 @@ public class Main extends Application {
 		return new Scene(design);
 		
 	}
+	
 	
 	public static void main(String[] args) {
 		launch(args);
