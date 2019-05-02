@@ -25,15 +25,19 @@ public class Main extends Application {
 	private Scene resultsScene;
 	private Label label;
 	
+	
 	private int currQuestion = 0;
 	private ArrayList<String> choices= new ArrayList<String>();
+	
+	
 	
 	private Stage stage;
 	
 	private Quiz quiz;
 	private List<Question> quizQuestions;
 	
-	int numQuestions = 0;
+	private int numQuestions = 0;
+	private int numCorrect = 0;
 	
 	public void start(Stage primaryStage) {
 		stage = primaryStage;
@@ -152,6 +156,7 @@ public class Main extends Application {
 		
 		
 	}
+	
 	
 	@SuppressWarnings("unused")
 	private Scene createAddQScene() {
@@ -346,6 +351,7 @@ public class Main extends Application {
 		return new Scene(design);
 	}
 	
+	
 	private Scene createAddJSONScene() {
 		VBox design = new VBox(10);
 		design.setStyle("-fx-background-color: cornsilk; -fx-padding: 15;");
@@ -466,6 +472,7 @@ public class Main extends Application {
 		
 		
 	}
+	
 	
 	private Scene createQuizStartScene() {
 		VBox design = new VBox();
@@ -609,6 +616,7 @@ public class Main extends Application {
 		return new Scene(design);
 		
 	}		
+	
 	
 	private void quizLoop() {
 		List<ToggleButton> toggleGroup = new ArrayList<ToggleButton>();
@@ -796,8 +804,12 @@ public class Main extends Application {
 		}
 		for(int k = 0; k< toggleGroup.size();k++) {
 			if(toggleGroup.get(k).getText().length()<=0) {
+				
+				
 				toggleGroup.get(k).setStyle("-fx-background-color: white;-fx-border: none; -fx-color: white;");
 				toggleGroup.get(k).setDisable(true);
+				
+				
 			}
 			else {
 				size++;
@@ -845,8 +857,30 @@ public class Main extends Application {
 		nextButton.setOnMouseExited(e->nextButton.setStyle(initStyleN));
 		nextButton.setOnAction(e -> {
 					if(currQuestion < numQuestions-1) {
+						
+						
+						for(int x = 0; x<quizQuestions.get(currQuestion).getChoices().size(); x++) {
+
+								if(toggleGroup.get(x).isSelected()) {
+									
+									for(int y = 0;y<quizQuestions.get(currQuestion).getChoices().size(); y++) {
+										
+										if(toggleGroup.get(x).getText().equals(quizQuestions.get(currQuestion).getChoices().get(y).getChoiceText())) {
+											numCorrect++;	
+										}
+										
+									}
+								}
+								
+								
+							
+							
+						}
 						currQuestion++;
 						quizLoop();
+						
+						
+						
 					}
 					else {
 						stage.setScene(resultsScene);
@@ -928,6 +962,7 @@ public class Main extends Application {
 		stage.setScene(quiz);
 	}
 	
+	
 	private Scene createResultsScene() {
 		Label questionNumber = new Label();
 		questionNumber.setText("Quiz Results");
@@ -1005,6 +1040,7 @@ public class Main extends Application {
 		return new Scene(design);
 		
 	}
+	
 	
 	public static void main(String[] args) {
 		launch(args);
