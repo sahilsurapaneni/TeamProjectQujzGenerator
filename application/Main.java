@@ -985,7 +985,7 @@ public class Main extends Application {
 		Image image;
 		//checks if an image url was entered, if not use temp image
 		if(quizQuestions.get(currQuestion).getImageString().trim().equals("none") || quizQuestions.get(currQuestion).getImageString().trim().length() == 0){
-			image = new Image("quizTemp.jpg");
+			image = new Image("application/quizTemp.jpg");
 		}
 		else {
 			//tries displaying given image. If error is caused use default image.
@@ -1001,7 +1001,7 @@ public class Main extends Application {
 					alert.showAndWait();
 				}
 				shown = true;
-				image = new Image("quizTemp.jpg");
+				image = new Image("application/quizTemp.jpg");
 			}
 		}
 		ImageView imageView = new ImageView(image);
