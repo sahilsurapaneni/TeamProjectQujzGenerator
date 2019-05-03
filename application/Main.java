@@ -324,11 +324,9 @@ public class Main extends Application {
 						imageBox.setText("");
 						List<Choice> choices = new ArrayList<Choice>();
 						for(int i = 0; i<arrText.size();i++) {
-							if(arrText.get(i).getText().length()>0) {
-								choices.add(new Choice(false,arrText.get(i).getText()));
-							}							
-							arrText.get(i).setText("");
+							choices.add(new Choice(false,arrText.get(i).getText()));			
 						}
+						boolean otherAlert = false;
 						if(topicText.length()<=0 || questionText.length()<=0 || choices.size() == 0) {
 							Alert alert = new Alert(Alert.AlertType.INFORMATION);
 							alert.setTitle("ERROR FOUND");
@@ -343,9 +341,28 @@ public class Main extends Application {
 						}
 						else {
 							try {
-								
+								outerloop:
 								for(int i = 0; i<arrRadio.size();i++) {
 									if(arrRadio.get(i).isSelected()) {
+										try {
+											if(choices.get(i).getChoiceText().length()==0) {
+												System.out.println("LL" + choices.get(i).getChoiceText());
+												throw new Exception();
+											}
+										} catch (Exception e) {
+											Alert alert = new Alert(Alert.AlertType.INFORMATION);
+											alert.setTitle("ERROR FOUND");
+											alert.setHeaderText(null);
+											alert.setContentText("Invalid Choice | Question Not Added");
+											alert.showAndWait();
+											topicBox.setText("");
+											questionBox.setText("");
+											imageBox.setText("");
+											choices.clear();
+											otherAlert = true;
+											stage.setScene(addQScene);
+											break outerloop;
+										}
 										choices.get(i).setIsCorrect(true);
 										System.out.println(choices.get(i).choiceText);
 										selected = true;
@@ -353,7 +370,14 @@ public class Main extends Application {
 									arrRadio.get(i).setSelected(false);
 								}
 								
-								if(!selected) {
+								for(int i = 0; i<arrText.size();i++) {
+									if(arrText.get(i).getText().length()>0) {
+										choices.add(new Choice(false,arrText.get(i).getText()));
+									}							
+									arrText.get(i).setText("");
+								}
+								
+								if(!selected && !otherAlert) {
 									Alert alert = new Alert(Alert.AlertType.INFORMATION);
 									alert.setTitle("ERROR FOUND");
 									alert.setHeaderText(null);
