@@ -1,5 +1,20 @@
 package application;
 
+
+////////////////////ALL ASSIGNMENTS INCLUDE THIS SECTION /////////////////////
+//
+//Title: TeamProjectQuizGenerator
+//Files: Choice.java, Main.java, Question.java, Quiz.java, Topic.java, HashTableQuiz.java
+//Course: CS 400
+//
+//Author: Sahil Surapaneni,Maurya Adhitya, Chad Spalding, Sathvik Gurupalli, Varun Sudhakaran
+//Email: surapaneni2@wisc.edu, mpulipati@wisc.edu, ctspalding@wisc.edu, vsudhakaran@wisc.edu, gurupalli@wisc.edu
+//Lecturer: Professor Debra Deppeler, Andrew Kuemmel
+//Lecturer Number: 001, 002, 004.
+//Due Date: 5/3/19
+//
+/////////////////////////////// 80 COLUMNS WIDE ///////////////////////////////
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -14,6 +29,11 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+/**
+ * Back end class for the GUI, stores the quiz questions by calling hash table, creating quiz.
+ * @author Sahil Surapaneni,Maurya Adhitya, Chad Spalding, Sathvik Gurupalli, Varun Sudhakaran
+ *
+ */
 public class Quiz {
 
 	private HashTableQuiz questions;

@@ -2,14 +2,14 @@ package application;
 
 ////////////////////ALL ASSIGNMENTS INCLUDE THIS SECTION /////////////////////
 //
-//Title: TeamProjectGUI
+//Title: TeamProjectQuizGenerator
 //Files: Choice.java, Main.java, Question.java, Quiz.java, Topic.java, HashTableQuiz.java
-//Course: CS 400, Semester 1, and Freshman
+//Course: CS 400
 //
-//Author: Varun Sudhakaran
-//Email: vsudhakaran@wisc.edu
-//Lecturer: Professor Debra Deppeler
-//Lecturer Number: 002
+//Author: Sahil Surapaneni,Maurya Adhitya, Chad Spalding, Sathvik Gurupalli, Varun Sudhakaran
+//Email: surapaneni2@wisc.edu, mpulipati@wisc.edu, ctspalding@wisc.edu, vsudhakaran@wisc.edu, gurupalli@wisc.edu
+//Lecturer: Professor Debra Deppeler, Andrew Kuemmel
+//Lecturer Number: 001, 002, 004.
 //Due Date: 5/3/19
 //
 /////////////////////////////// 80 COLUMNS WIDE ///////////////////////////////
@@ -23,7 +23,7 @@ import java.util.List;
  * This class makes a data structure of Hash Table 
  * to be implemented for our data.
  * 
- * @author varunsudhakaran
+ * @author Sahil Surapaneni,Maurya Adhitya, Chad Spalding, Sathvik Gurupalli, Varun Sudhakaran
  *
  */
 public class HashTableQuiz {
