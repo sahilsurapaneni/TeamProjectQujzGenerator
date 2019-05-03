@@ -54,9 +54,7 @@ public class Quiz {
 	 * Parses through JSON file to create new questions
 	 * 
 	 * @param filepath
-	 * @throws FileNotFoundException
-	 * @throws IOException
-	 * @throws ParseException
+	 * @throws IllegalArgumentException
 	 */
 	public void addQuestion(String filepath){
 		try {
@@ -81,10 +79,11 @@ public class Quiz {
 					String choiceText = (String) nextChoice.get("choice");
 					if (correct.equals("T")) {
 						trueOrFalse = true;
-					} else { // TODO: i think we should throw an exception here if isCorrect doesn't say "T"
-								// or
-								// "F" but idk what kind so i left it like this
+					} else if(correct.equals("F")) {
 						trueOrFalse = false;
+					}
+					else {
+						throw new IllegalArgumentException();
 					}
 					choiceList.add(new Choice(trueOrFalse, choiceText)); // add to the choice list
 				}
@@ -276,7 +275,10 @@ public class Quiz {
 		jsonFile.put("questionArray",questionArray);
 		
 		//checks if the file ends in .json
-		String temp = name.substring(name.length()-5,name.length());
+		String temp = "";
+		if(name.length()>5) {
+			temp = name.substring(name.length()-5,name.length());
+		}
 		if(!temp.equals(".json")) {
 			name += ".json";
 		}
@@ -288,7 +290,6 @@ public class Quiz {
 			writer.write(jsonFile.toString());
 			
 		} catch(IOException e) {
-			e.printStackTrace();
 		}
 		finally {
 			writer.flush();

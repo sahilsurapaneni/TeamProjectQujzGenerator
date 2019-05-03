@@ -990,7 +990,7 @@ public class Main extends Application {
 		else {
 			//tries displaying given image. If error is caused use default image.
 			try {
-				image = new Image(quizQuestions.get(currQuestion).getImageString());
+				image = new Image(quizQuestions.get(currQuestion).getImageString().trim());
 			}
 			catch(IllegalArgumentException e) {
 				if(!shown) {
