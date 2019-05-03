@@ -648,6 +648,18 @@ public class Main extends Application {
 							stage.setScene(quizStartScene);
 						}
 						
+						try {
+							if(numQuestions == 0) {
+								throw new Exception();
+							}
+						} catch (Exception e) {
+							Alert alert = new Alert(Alert.AlertType.INFORMATION);
+							alert.setTitle("ERROR FOUND");
+							alert.setHeaderText(null);
+							alert.setContentText("Number of Questions Can't Be Zero");
+							alert.showAndWait();
+							stage.setScene(quizStartScene);
+						}
 						
 						if(numQuestions > size) {
 							numQuestions = size;
