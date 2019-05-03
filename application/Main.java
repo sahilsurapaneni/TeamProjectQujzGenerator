@@ -1,8 +1,13 @@
 package application;
 	
+import java.awt.image.BufferedImage;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.imageio.ImageIO;
 
 import javafx.application.Application;
 //import javafx.collections.FXCollections;
@@ -982,17 +987,22 @@ public class Main extends Application {
 		top2Line.getChildren().setAll(questionNumber);
 
 		//Sets image to be displayed in quiz
-		Image image;
+		FileInputStream input = null;
+		Image image = null;
 		//checks if an image url was entered, if not use temp image
 		if(quizQuestions.get(currQuestion).getImageString().trim().equals("none") || quizQuestions.get(currQuestion).getImageString().trim().length() == 0){
-			image = new Image("application/quizTemp.jpg");
+			try {
+				input = new FileInputStream("application/quizTemp.jpg");
+				image = new Image(input);
+			} catch (FileNotFoundException e1) {}
 		}
 		else {
 			//tries displaying given image. If error is caused use default image.
 			try {
-				image = new Image(quizQuestions.get(currQuestion).getImageString().trim());
+				input = new FileInputStream(quizQuestions.get(currQuestion).getImageString().trim());
+				image = new Image(input);
 			}
-			catch(IllegalArgumentException e) {
+			catch(FileNotFoundException e) {
 				if(!shown) {
 					Alert alert = new Alert(Alert.AlertType.INFORMATION);
 					alert.setTitle("ERROR FOUND");
@@ -1001,10 +1011,16 @@ public class Main extends Application {
 					alert.showAndWait();
 				}
 				shown = true;
-				image = new Image("application/quizTemp.jpg");
+				try {
+					input = new FileInputStream(quizQuestions.get(currQuestion).getImageString().trim());
+					image = new Image(input);
+				} catch (FileNotFoundException e1) {
+				}
+				
 			}
 		}
-		ImageView imageView = new ImageView(image);
+		ImageView imageView = new ImageView();
+		imageView.setImage(image);
 		imageView.setFitHeight(200);
 		imageView.setFitWidth(200);
 		
