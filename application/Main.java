@@ -636,7 +636,18 @@ public class Main extends Application {
 							}
 							
 						}
-						numQuestions = Integer.parseInt(sampleText.getText());
+						
+						try {
+							numQuestions = Integer.parseInt(sampleText.getText());
+						} catch (Exception e) {
+							Alert alert = new Alert(Alert.AlertType.INFORMATION);
+							alert.setTitle("ERROR FOUND");
+							alert.setHeaderText(null);
+							alert.setContentText("Number of Question Invalid | Quiz Not Started");
+							alert.showAndWait();
+							stage.setScene(quizStartScene);
+						}
+						
 						
 						if(numQuestions > size) {
 							numQuestions = size;
