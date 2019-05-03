@@ -133,7 +133,6 @@ public class Quiz {
 			}
 		}
 		
-		System.out.println(allQuestions.size());
 		// used to pull a random question from all
 															// questions
 		// add as many questions as desired to return list
@@ -142,7 +141,6 @@ public class Quiz {
 		while(i<numQuestions) {
 			//gets random number 
 			int randGen = (int)(Math.random()*allQuestions.size());
-			System.out.println(randGen);
 			
 			//picks a random question
 			if(question.contains(allQuestions.get(randGen)));

@@ -32,6 +32,7 @@ public class Main extends Application {
 	
 	private int currQuestion = 0; //current question number user is on when quiz starts
 	private ArrayList<String> choices= new ArrayList<String>(); //choices made by user in quiz
+	private Boolean shown; //Image Alert previously shown
 	
 	private Stage stage; //Scene on stage gets displayed  to user
 	
@@ -39,7 +40,6 @@ public class Main extends Application {
 	private List<Question> quizQuestions; //list of questions used in quiz
 	String selectedChoice; //choice user makes in quiz
 	int numCorrect; //number of correct choices made by user
-	
 	int numQuestions = 0; //number of questions added by user
 	
 	/**
@@ -52,6 +52,7 @@ public class Main extends Application {
 		quizQuestions = new ArrayList<Question>();
 		selectedChoice = "";
 		numCorrect = 0;
+		shown = false;
 		
 		//Initializes all the Scenes
 		primaryScene = createPrimaryScene();
@@ -101,7 +102,6 @@ public class Main extends Application {
 					public void handle(ActionEvent t) {
 						stage.setScene(addQScene);
 						stage.show();
-						System.out.println("Pressed");
 					}
 				}
 		);
@@ -119,7 +119,6 @@ public class Main extends Application {
 					public void handle(ActionEvent t) {
 						stage.setScene(addJSONScene);
 						stage.show();
-						System.out.println("Pressed");
 					}
 				}
 		);
@@ -150,7 +149,6 @@ public class Main extends Application {
 						else {
 							stage.setScene(quizStartScene);
 							stage.show();
-							System.out.println("Pressed");
 						}
 						
 					}
@@ -196,7 +194,6 @@ public class Main extends Application {
 					public void handle(ActionEvent t) {
 						stage.setScene(primaryScene);
 						stage.show();
-						System.out.println("Pressed");
 					}
 				}
 		);
@@ -368,7 +365,6 @@ public class Main extends Application {
 								for(int i = 0; i<arrRadio.size();i++) {
 									if(arrRadio.get(i).isSelected()) {
 										choices.get(i).setIsCorrect(true);
-										System.out.println(choices.get(i).choiceText);
 										selected = true;
 									}
 									arrRadio.get(i).setSelected(false);
@@ -400,7 +396,6 @@ public class Main extends Application {
 								quiz.addQuestion(topicText, questionText, choices, imageText);
 								stage.setScene(primaryScene);
 								stage.show();
-								System.out.println("Pressed");
 							}
 						}
 					}
@@ -438,7 +433,6 @@ public class Main extends Application {
 					public void handle(ActionEvent t) {
 						stage.setScene(primaryScene);
 						stage.show();
-						System.out.println("Pressed");
 					}
 				}
 		);
@@ -518,17 +512,8 @@ public class Main extends Application {
 						}
 						JSONBox.setText("");
 						sampleText.setText(sampleJSON);
-						/**
-						List<Question> q = quiz.getAllQuestion();
-						for(int i = 0; i<q.size();i++) {
-							System.out.println(q.get(i).getQuestionText());;
-							System.out.println(q.get(i).getImageString());
-							System.out.println(q.get(i).getChoices().toString());
-						}
-						*/
 						stage.setScene(primaryScene);
 						stage.show();
-						System.out.println("Pressed");
 					}
 				}
 		);
@@ -563,7 +548,6 @@ public class Main extends Application {
 					public void handle(ActionEvent t) {
 						stage.setScene(primaryScene);
 						stage.show();
-						System.out.println("Pressed");
 					}
 				}
 		);
@@ -603,7 +587,6 @@ public class Main extends Application {
 			//Loops through all topics and adds them to drop down box
 			for(int k = 0; k<topic.size();k++) {
 				listCheckMenu.add(new CheckBox(topic.get(k)));
-				System.out.println(topic.get(k));
 				listCheckMenu.get(k).setStyle("-fx-font: 10px Georgia, serif;");
 				listMenuItem.add(new CustomMenuItem(listCheckMenu.get(k)));
 				listMenuItem.get(k).setHideOnClick(false);			
@@ -691,10 +674,7 @@ public class Main extends Application {
 						//calls startQuiz method to generate quiz
 						sampleText.setText("");
 						quizQuestions = quiz.startQuiz(topics, numQuestions);
-						for(int i = 0; i<quizQuestions.size(); i++) {
-							System.out.println(quizQuestions.get(i).getQuestionText());
-						}
-						
+												
 						if(topics.size()==0) {
 							Alert alert = new Alert(Alert.AlertType.INFORMATION);
 							alert.setTitle("ERROR FOUND");
@@ -1013,11 +993,14 @@ public class Main extends Application {
 				image = new Image(quizQuestions.get(currQuestion).getImageString());
 			}
 			catch(IllegalArgumentException e) {
-				Alert alert = new Alert(Alert.AlertType.INFORMATION);
-				alert.setTitle("ERROR FOUND");
-				alert.setHeaderText(null);
-				alert.setContentText("Invalid Image URL | Default Image Shown");
-				alert.showAndWait();
+				if(!shown) {
+					Alert alert = new Alert(Alert.AlertType.INFORMATION);
+					alert.setTitle("ERROR FOUND");
+					alert.setHeaderText(null);
+					alert.setContentText("Invalid Image URL | Default Image Shown");
+					alert.showAndWait();
+				}
+				shown = true;
 				image = new Image("quizTemp.jpg");
 			}
 		}
