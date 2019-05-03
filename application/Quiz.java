@@ -120,10 +120,11 @@ public class Quiz {
 		
 		int i = 0;
 		while(i<numQuestions) {
+			//gets random number 
 			int randGen = (int)(Math.random()*allQuestions.size());
 			System.out.println(randGen);
 			
-			
+			//picks a random question
 			if(question.contains(allQuestions.get(randGen)));
 			else {
 				question.add(allQuestions.get(randGen));
@@ -156,10 +157,20 @@ public class Quiz {
 		return numCorrect;
 	}
 	
+	/**
+	 * Returns a list of all questions
+	 * 
+	 * @return List of questions
+	 */
 	public List<Question> getAllQuestion(){
 		return questions.getQuestionList();
 	}
 	
+	/**
+	 * Returns a list of all topic names
+	 * 
+	 * @return List of topic name
+	 */
 	public List<String> getTopicNames(){
 		return questions.getTopicNames();
 	}
@@ -173,11 +184,24 @@ public class Quiz {
 		return numIncorrect;
 	}
 	
+	/**
+	 * Returns number of topic
+	 * 
+	 * @return numtopics
+	 */
 	public int getNumTopics() {
 		return questions.numKeys();
 	}
 	
+	/**
+	 * Takes all of the questions within the HashTable and makes them into
+	 * a JSON file
+	 * 
+	 * @param name of the JSON file
+	 * @throws IOException
+	 */
 	public void toJSONFile(String name) throws IOException{
+		//initializes all of the needed objects
 		JSONArray questionArray = new JSONArray();
 		JSONObject questionObject = new JSONObject();
 		JSONObject jsonFile = new JSONObject();
@@ -190,11 +214,13 @@ public class Quiz {
 		List<String> topicNames = questions.getTopicNames();
 		List<JSONObject> Choices = new ArrayList<JSONObject>();
 
-		
+		//cycles through the topics
 		for(int x = 0;x<topicNames.size();x++) {
 			
 			Topic temp = questions.get(topicNames.get(x));
 			List<Question> tempQuestions = temp.getQuestionList();
+			
+			//cycles through the questions for each topic
 			for(int y = 0;y<tempQuestions.size();y++) {
 				
 			
@@ -202,6 +228,7 @@ public class Quiz {
 			questionObject.put("topic", temp.getName());
 			questionObject.put("image",tempQuestions.get(y).getImageString());
 			questionObject.put("meta-data", "unsued");
+			//cycles through the choices of all questions
 			for(int i=0; i<tempQuestions.get(y).getChoices().size();i++) {
 				
 				
@@ -216,9 +243,10 @@ public class Quiz {
 				ChoicesArray.add(isCorrect);
 				isCorrect = new JSONObject();
 			}
-			
+			//adds through the JASONObject
 			questionObject.put("choiceArray",ChoicesArray);
 			questionArray.add(questionObject);
+			//resets the objects
 			questionObject = new JSONObject();
 			ChoicesArray = new JSONArray();
 			}
@@ -226,12 +254,15 @@ public class Quiz {
 			
 		}
 		
+		//adds to the object
 		jsonFile.put("questionArray",questionArray);
 		
+		//checks if the file ends in .json
 		String temp = name.substring(name.length()-5,name.length());
 		if(!temp.equals(".json")) {
 			name += ".json";
 		}
+		//creates the file
 		File jsonFile1 = new File(name);
 		FileWriter writer = new FileWriter(jsonFile1);
 		try {
