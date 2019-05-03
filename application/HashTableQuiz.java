@@ -26,7 +26,7 @@ import java.util.List;
  * @author Sahil Surapaneni,Maurya Adhitya, Chad Spalding, Sathvik Gurupalli, Varun Sudhakaran
  *
  */
-public class HashTableQuiz {
+public class HashTableQuiz implements HashTableQuizADT{
 
 	private int size; //number of elements in hash table
 	private double loadFactor; //current load factor of the table.
