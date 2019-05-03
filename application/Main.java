@@ -383,6 +383,7 @@ public class Main extends Application {
 									arrRadio.get(i).setSelected(false);
 								}
 								
+								choices.clear();
 								for(int i = 0; i<arrText.size();i++) {
 									if(arrText.get(i).getText().length()>0) {
 										choices.add(new Choice(false,arrText.get(i).getText()));
@@ -532,14 +533,6 @@ public class Main extends Application {
 						}
 						JSONBox.setText("");
 						sampleText.setText(sampleJSON);
-						/**
-						List<Question> q = quiz.getAllQuestion();
-						for(int i = 0; i<q.size();i++) {
-							System.out.println(q.get(i).getQuestionText());;
-							System.out.println(q.get(i).getImageString());
-							System.out.println(q.get(i).getChoices().toString());
-						}
-						*/
 						stage.setScene(primaryScene);
 						stage.show();
 						System.out.println("Pressed");
@@ -705,9 +698,6 @@ public class Main extends Application {
 						//calls startQuiz method to generate quiz
 						sampleText.setText("");
 						quizQuestions = quiz.startQuiz(topics, numQuestions);
-						for(int i = 0; i<quizQuestions.size(); i++) {
-							System.out.println(quizQuestions.get(i).getQuestionText());
-						}
 						
 						if(topics.size()==0) {
 							Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -917,8 +907,15 @@ public class Main extends Application {
 		
 		//Sets the text for however many choices a question has
 		int size = 0;
-		for(int j = 0; j<quizQuestions.get(currQuestion).getChoices().size();j++) {
-			toggleGroup.get(j).setText(quizQuestions.get(currQuestion).getChoices().get(j).getChoiceText());
+		System.out.println(" efrfedede" + quizQuestions.get(currQuestion).getChoices().size());
+		try {
+			for(int j = 0; j<quizQuestions.get(currQuestion).getChoices().size();j++) {
+				toggleGroup.get(j).setText(quizQuestions.get(currQuestion).getChoices().get(j).getChoiceText());
+			}
+		} catch (Exception e) {
+			for(int j = 0; j<quizQuestions.get(currQuestion).getChoices().size();j++) {
+				toggleGroup.get(j).setText(quizQuestions.get(currQuestion).getChoices().get(j).getChoiceText());
+			}
 		}
 		//if all choices not used remove the extra choice buttons
 		for(int k = 0; k< toggleGroup.size();k++) {
