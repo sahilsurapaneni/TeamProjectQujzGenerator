@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javafx.application.Application;
+//import javafx.collections.FXCollections;
 import javafx.event.*;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -14,20 +15,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
-
-////////////////////ALL ASSIGNMENTS INCLUDE THIS SECTION /////////////////////
-//
-//Title: TeamProjectQuizGenerator
-//Files: Choice.java, Main.java, Question.java, Quiz.java, Topic.java, HashTableQuiz.java
-//Course: CS 400
-//
-//Author: Sahil Surapaneni,Maurya Adhitya, Chad Spalding, Sathvik Gurupalli, Varun Sudhakaran
-//Email: surapaneni2@wisc.edu, mpulipati@wisc.edu, ctspalding@wisc.edu, vsudhakaran@wisc.edu, gurupalli@wisc.edu
-//Lecturer: Professor Debra Deppeler, Andrew Kuemmel
-//Lecturer Number: 001, 002, 004.
-//Due Date: 5/3/19
-//
-/////////////////////////////// 80 COLUMNS WIDE ///////////////////////////////
 
 /**
  * GUI Class for Quiz Generator
@@ -328,6 +315,7 @@ public class Main extends Application {
 		submitButton.setOnAction(
 				new EventHandler<ActionEvent>() {
 					Boolean selected = false;
+					Boolean otherError = false;
 					public void handle(ActionEvent t) {
 						String topicText = topicBox.getText();
 						topicBox.setText("");
@@ -336,11 +324,33 @@ public class Main extends Application {
 						String imageText = imageBox.getText();
 						imageBox.setText("");
 						List<Choice> choices = new ArrayList<Choice>();
-						for(int i = 0; i<arrText.size();i++) {
-							choices.add(new Choice(false,arrText.get(i).getText()));			
+						try{
+							for(int i = 0; i<arrText.size();i++) {
+								if(arrText.get(i).getText().length()==0 && arrRadio.get(i).isSelected()) {
+									throw new IllegalArgumentException();
+								}
+								if(arrText.get(i).getText().length()>0) {
+									choices.add(new Choice(false,arrText.get(i).getText()));
+								}							
+								arrText.get(i).setText("");
+							}
+						} catch (IllegalArgumentException e) {
+							Alert alert = new Alert(Alert.AlertType.INFORMATION);
+							alert.setTitle("ERROR FOUND");
+							alert.setHeaderText(null);
+							alert.setContentText("Illegal Choice Made | Question Not Added");
+							alert.showAndWait();
+							topicBox.setText("");
+							questionBox.setText("");
+							imageBox.setText("");
+							otherError = true;
+							choices.clear();
+							for(int i = 0; i<arrText.size();i++) {
+								arrText.get(i).setText("");
+							}
+							stage.setScene(addQScene);
 						}
-						boolean otherAlert = false;
-						if(topicText.length()<=0 || questionText.length()<=0 || choices.size() == 0) {
+						if(topicText.length()<=0 || questionText.length()<=0 || choices.size() == 0 && !otherError) {
 							Alert alert = new Alert(Alert.AlertType.INFORMATION);
 							alert.setTitle("ERROR FOUND");
 							alert.setHeaderText(null);
@@ -354,28 +364,9 @@ public class Main extends Application {
 						}
 						else {
 							try {
-								outerloop:
+								
 								for(int i = 0; i<arrRadio.size();i++) {
 									if(arrRadio.get(i).isSelected()) {
-										try {
-											if(choices.get(i).getChoiceText().length()==0) {
-												System.out.println("LL" + choices.get(i).getChoiceText());
-												throw new Exception();
-											}
-										} catch (Exception e) {
-											Alert alert = new Alert(Alert.AlertType.INFORMATION);
-											alert.setTitle("ERROR FOUND");
-											alert.setHeaderText(null);
-											alert.setContentText("Invalid Choice | Question Not Added");
-											alert.showAndWait();
-											topicBox.setText("");
-											questionBox.setText("");
-											imageBox.setText("");
-											choices.clear();
-											otherAlert = true;
-											stage.setScene(addQScene);
-											break outerloop;
-										}
 										choices.get(i).setIsCorrect(true);
 										System.out.println(choices.get(i).choiceText);
 										selected = true;
@@ -383,15 +374,7 @@ public class Main extends Application {
 									arrRadio.get(i).setSelected(false);
 								}
 								
-								choices.clear();
-								for(int i = 0; i<arrText.size();i++) {
-									if(arrText.get(i).getText().length()>0) {
-										choices.add(new Choice(false,arrText.get(i).getText()));
-									}							
-									arrText.get(i).setText("");
-								}
-								
-								if(!selected && !otherAlert) {
+								if(!selected && !otherError) {
 									Alert alert = new Alert(Alert.AlertType.INFORMATION);
 									alert.setTitle("ERROR FOUND");
 									alert.setHeaderText(null);
@@ -404,12 +387,14 @@ public class Main extends Application {
 									stage.setScene(addQScene);
 								}
 							} catch(IndexOutOfBoundsException e) {
-								Alert alert = new Alert(Alert.AlertType.INFORMATION);
-								alert.setTitle("ERROR FOUND");
-								alert.setHeaderText(null);
-								alert.setContentText("Invalid Choice | Question Not Added");
-								alert.showAndWait();
-								stage.setScene(primaryScene);
+								if(!otherError) {
+									Alert alert = new Alert(Alert.AlertType.INFORMATION);
+									alert.setTitle("ERROR FOUND");
+									alert.setHeaderText(null);
+									alert.setContentText("Invalid Choice | Question Not Added");
+									alert.showAndWait();
+									stage.setScene(primaryScene);
+								}
 							}
 							if(selected) {
 								quiz.addQuestion(topicText, questionText, choices, imageText);
@@ -533,6 +518,14 @@ public class Main extends Application {
 						}
 						JSONBox.setText("");
 						sampleText.setText(sampleJSON);
+						/**
+						List<Question> q = quiz.getAllQuestion();
+						for(int i = 0; i<q.size();i++) {
+							System.out.println(q.get(i).getQuestionText());;
+							System.out.println(q.get(i).getImageString());
+							System.out.println(q.get(i).getChoices().toString());
+						}
+						*/
 						stage.setScene(primaryScene);
 						stage.show();
 						System.out.println("Pressed");
@@ -666,7 +659,6 @@ public class Main extends Application {
 							}
 							
 						}
-						
 						try {
 							numQuestions = Integer.parseInt(sampleText.getText());
 						} catch (Exception e) {
@@ -691,6 +683,7 @@ public class Main extends Application {
 							stage.setScene(quizStartScene);
 						}
 						
+						
 						if(numQuestions > size) {
 							numQuestions = size;
 						}
@@ -698,6 +691,9 @@ public class Main extends Application {
 						//calls startQuiz method to generate quiz
 						sampleText.setText("");
 						quizQuestions = quiz.startQuiz(topics, numQuestions);
+						for(int i = 0; i<quizQuestions.size(); i++) {
+							System.out.println(quizQuestions.get(i).getQuestionText());
+						}
 						
 						if(topics.size()==0) {
 							Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -907,15 +903,8 @@ public class Main extends Application {
 		
 		//Sets the text for however many choices a question has
 		int size = 0;
-		System.out.println(" efrfedede" + quizQuestions.get(currQuestion).getChoices().size());
-		try {
-			for(int j = 0; j<quizQuestions.get(currQuestion).getChoices().size();j++) {
-				toggleGroup.get(j).setText(quizQuestions.get(currQuestion).getChoices().get(j).getChoiceText());
-			}
-		} catch (Exception e) {
-			for(int j = 0; j<quizQuestions.get(currQuestion).getChoices().size();j++) {
-				toggleGroup.get(j).setText(quizQuestions.get(currQuestion).getChoices().get(j).getChoiceText());
-			}
+		for(int j = 0; j<quizQuestions.get(currQuestion).getChoices().size();j++) {
+			toggleGroup.get(j).setText(quizQuestions.get(currQuestion).getChoices().get(j).getChoiceText());
 		}
 		//if all choices not used remove the extra choice buttons
 		for(int k = 0; k< toggleGroup.size();k++) {
